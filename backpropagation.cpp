@@ -113,7 +113,6 @@ void set_data(params& param, const std::string filename = "training2.dat")
 
 void learn(const params param)
 {
-
 	const int n_input = param.num_input, n_hidden = param.num_hidden, n_output = param.num_output;
 	const int n_learn = param.num_learn, n_sample = param.num_sample;
 	const double gain = param.s_gain, epsilon = param.epsilon, threshold_error = param.threshold_error;
@@ -122,7 +121,6 @@ void learn(const params param)
 	std::vector< double > x(n_input + 1), h(n_hidden + 1), y(n_output);
 	//逆伝搬量
 	std::vector< double > h_back(n_hidden), y_back(n_output);
-
 
 	//結線の重みを初期化
 	srand(time(NULL));
@@ -309,7 +307,6 @@ int main()
 		case 4:
 			//パラメータの調整
 			config(&p);
-			cout << p.s_gain << endl;
 			break;
 		case 0:
 			cout <<"終了します"<<endl;
