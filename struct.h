@@ -26,4 +26,6 @@ struct params{
 	}
 };
 
+typedef std::pair< int,int > Pair;
+
 #endif

@@ -20,14 +20,11 @@ const std::string MSG[3] ={
 	"piyo"
 };
 
-//訓練データ格納
-std::vector< TrainingData > target;
 //結線の重み。
-typedef std::pair< int,int > Pair;
 std::map< Pair, double > w1, w2;
 
 //ファイルから訓練データを読み込む
-void set_data(params& param, const std::string filename = "training2.dat")
+void set_data(params& param, std::vector< TrainingData >& target, const std::string filename = "training2.dat")
 {
 	using namespace std;
 	ifstream ifs;
@@ -77,7 +74,7 @@ void set_data(params& param, const std::string filename = "training2.dat")
 	}
 }
 
-void learn(const params param)
+void learn(const params param, const std::vector< TrainingData >& target)
 {
 	const int n_input = param.num_input, n_hidden = param.num_hidden, n_output = param.num_output;
 	const int n_learn = param.num_learn, n_sample = param.num_sample;
@@ -238,6 +235,8 @@ void config(params* param){
 int main()
 {
 	using namespace std;
+
+	vector< TrainingData > target;
 	params p;
 	int key = -1; //キー入力
 	while(key != 0){
@@ -246,12 +245,12 @@ int main()
 		switch(key){
 		case 1:
 			//データ入力
-			set_data(p);
+			set_data(p, target);
 			break;
 		case 2:
 			//学習
 			cout <<"learn and optimize weight of node connections"<< endl;
-			learn(p);
+			learn(p, target);
 			break;
 		case 3:
 			//試してみる
