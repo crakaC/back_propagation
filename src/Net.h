@@ -23,7 +23,7 @@ private:
 	std::vector< double >h_back, y_back;
 	std::map< Pair, double > w1, w2;
 	Params* param;
-	Params param_bk;//学習時に設定を保存し、学習後隠れ層素子数を変更してもsegmentation faultが発生しないようにする。
+	Params param_bk; //学習時の状態を保存する
 };
 
 #endif

@@ -24,7 +24,6 @@ public:
 	double threshold_error;//許容誤差
 	bool is_trained, is_empty;
 	Params();
-	Params( const Params& p );
 	void set_all();
 	void set_learn_num();
 	void set_hidden_num();

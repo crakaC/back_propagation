@@ -32,7 +32,7 @@ void Net::init_node()
 	this->h_back.assign( param->num_hidden, (double)0 );
 	this->y_back.assign( param->num_output, (double)0 );
 
-	//設定を記憶
+	//設定を記憶 Paramにポインタはないからこれで大丈夫なはず。
 	param_bk = *param;
 }
 

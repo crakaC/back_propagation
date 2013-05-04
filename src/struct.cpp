@@ -14,12 +14,6 @@ Params::Params()
 		is_trained = false;
 }
 
-Params::Params( const Params& p ){
-	fprintf(stderr,"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n"
-		   "コピーコンストラクタktkr\n"
-		   "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-}
-
 void Params::set_all()
 {
 	set_learn_num();
