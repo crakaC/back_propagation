@@ -57,7 +57,7 @@ std::vector< double > Net::output(const std::vector< double >& input)
 	return output;
 }
 
-//引数なし：メンバのxから,yを更新する。
+//メンバのxから,yを更新する。
 void Net::update_y()
 {
 	double net_input;
@@ -78,14 +78,17 @@ void Net::update_y()
 		}
 		this->y[j] = sigmoid(net_input, this->param->s_gain);
 	}
-
 }
 
 void Net::learn( const std::vector< TrainingData >& target)
 {
+	if( (param->is_empty) ){
+		printf("先に訓練データを入力してください\n");
+		return;
+	}
+	printf("gain = %lf, epsilon = %lf, threshold_error = %lf\n",param->s_gain, param->epsilon, param->threshold_error);
 	init_node();
 	init_weight();
-
 	int ilearn;
 	double error, max_error;
 	for(ilearn = 0; ilearn < param->num_learn; ilearn++){
@@ -122,6 +125,7 @@ void Net::learn( const std::vector< TrainingData >& target)
 		}
 	}
 	printf("学習回数:%d, 誤差:%lf\n",ilearn, max_error);
+	param->is_trained = true;
 }
 
 void Net::fix_weight()

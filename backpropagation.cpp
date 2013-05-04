@@ -20,6 +20,8 @@ int main()
 	};
 	vector< TrainingData > target;
 	params p;
+//	cout << p.is_trained << endl;
+//	cout << p.is_empty << endl;
 	Net net(&p);
 	int key = -1; //キー入力
 	while(key != 0){

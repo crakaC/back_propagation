@@ -18,6 +18,13 @@ void set_data(params& param, std::vector< TrainingData >& target, const std::str
 	//データからパラメータを読み込む
 	ifs >> param.num_sample >> param.num_input >> param.num_output;
 
+	if(param.num_sample < 1 || param.num_input < 1 || param.num_output < 1){
+		cout<<"file format is wrong."<<endl;
+		return;
+	}
+	param.is_empty = false;
+	param.is_trained = false;
+
 	//訓練データをtargetに格納
 	for(int isample = 0; isample < param.num_sample ; isample++){
 		target.push_back(TrainingData(param.num_input, param.num_output));
@@ -55,6 +62,10 @@ void set_data(params& param, std::vector< TrainingData >& target, const std::str
 
 void execute(const params param, Net& net)
 {
+	if( !(param.is_trained) ){
+		printf("先に訓練データを学習してください\n");
+		return;
+	}
 	//各素子の値を入れるためのやつ
 	std::vector< double > input, output;
 

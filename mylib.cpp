@@ -2,7 +2,7 @@
 #include<cstdlib>
 #include<cstdio>
 #include"mylib.h"
-
+#include<iostream>
 //シグモイド関数
 double sigmoid( const double s , const double gain){
 	return 1 - (1 / ((double)1 + exp(gain * s)));
