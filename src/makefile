@@ -1,6 +1,7 @@
 CC=g++
 CFLAGS=-Wall
 .SUFFIXES = .cpp
+objs:=$(wildcard *.o)
 
 backpropagation: backpropagation.o mylib.o bp.o Net.o struct.o
 	$(CC) $(CFLAGS) -o backpropagation backpropagation.o mylib.o bp.o Net.o struct.o
@@ -14,4 +15,5 @@ Net.o:Net.h struct.h
 struct.o:struct.h
 
 .PHONY: clean
-	rm *.o *~
+clean:
+	$(RM) $(objs)
