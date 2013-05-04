@@ -3,7 +3,12 @@
 
 #include"mylib.h"
 #include"struct.h"
+#include"Net.h"
 
 void set_data(params& param, std::vector< TrainingData >& target, const std::string filename);
+
+void learn(const params param, const std::vector< TrainingData >& target, Net& net);
+
+void execute(const params param, const Net net);
 
 #endif
