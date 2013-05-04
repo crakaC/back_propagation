@@ -10,31 +10,8 @@
 #include<string>
 #include<vector>
 #include<map>
-
-//訓練データ
-struct TrainingData{
-	std::vector< int > input;
-	std::vector< int > output;
-	TrainingData(int i, int o){
-		input = std::vector<int>(i);
-		output = std::vector<int>(o);
-	}
-};
-
-//パラメータ
-struct params{
-	int num_learn, num_sample;//学習打ち切り回数、訓練データ数
-	int num_input, num_hidden, num_output;//入力素子数、隠れ層素子数、出力素子数
-	double s_gain, epsilon;//シグモイド関数ゲイン、学習重み
-	double threshold_error;//許容誤差
-	params(){
-		num_learn = 10000;
-		num_hidden = 10;
-		s_gain = 1.0;
-		epsilon = 0.05;
-		threshold_error = 0.01;
-	}
-};
+#include"struct.h"
+#include"mylib.h"
 
 //表示テキスト
 const std::string MSG[3] ={
@@ -48,17 +25,6 @@ std::vector< TrainingData > target;
 //結線の重み。
 typedef std::pair< int,int > Pair;
 std::map< Pair, double > w1, w2;
-
-//シグモイド関数
-double sigmoid( const double s , const double gain){
-	return 1 - (1 / ((double)1 + exp(gain * s)));
-}
-
-//-1から1の範囲の乱数を返す。
-double d_rand(){
-	double ret = static_cast<double>(rand()) / static_cast<double>(RAND_MAX);
-	return (rand()%2 == 0) ? ret : -ret;
-}
 
 //ファイルから訓練データを読み込む
 void set_data(params& param, const std::string filename = "training2.dat")
@@ -256,19 +222,6 @@ void execute(const params param)
 	printf("--------\n");
 }
 
-//キー入力を指定した値の範囲に制限。
-template<class T> T input_key(T begin, T end){
-	T value;
-	std::cin >> value;
-	while( !std::cin || (value < begin || end < value)){
-		std::cout << begin <<"から"<<end<<"の間で入力することを強いられているんだ…！"<<std::endl;
-		std::cin.clear();
-		std::cin.ignore(INT_MAX, '\n');
-		std::cout << '>'<<std::flush;
-		std::cin >> value;
-	}
-	return value;
-}
 
 //パラメータの設定
 void config(params* param){
