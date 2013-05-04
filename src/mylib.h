@@ -30,7 +30,4 @@ template<class T> T input_key( T min, T max ){
 	return value;
 }
 
-//パラメータの設定
-void config( Params* param );
-
 #endif

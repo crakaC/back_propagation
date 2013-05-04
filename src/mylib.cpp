@@ -13,7 +13,3 @@ double d_rand(){
 	double ret = static_cast<double>( rand() ) / static_cast<double>( RAND_MAX );
 	return ( rand()%2 == 0 ) ? ret : -ret;
 }
-
-//パラメータの設定
-void config( Params* param ){
-}
