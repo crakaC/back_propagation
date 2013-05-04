@@ -19,6 +19,7 @@ template<class T> T input_key( T min, T max ){
 	using namespace std;
 
 	T value;
+	cout << '>' <<flush;
 	cin >> value;
 	while( !cin || ( value < min || max < value ) ){
 		cout << min << "から" << max << "の間で入力することを強いられているんだ…！" << endl;
@@ -30,4 +31,5 @@ template<class T> T input_key( T min, T max ){
 	return value;
 }
 
+void create_training_data();
 #endif

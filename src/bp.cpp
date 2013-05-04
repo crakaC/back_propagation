@@ -1,6 +1,7 @@
 #include<string>
 #include<fstream>
 #include<cmath>
+#include<cfloat>
 #include"bp.h"
 
 void set_data( Params& param, std::vector< TrainingData >& target, const std::string filename = "training2.dat" )
@@ -69,16 +70,11 @@ void execute( const Params param, Net& net )
 	//各素子の値を入れるためのやつ
 	std::vector< double > input, output;
 
-	printf( "入力値はいかがなさいますか？(n = %d)\n>", param.num_input );
+	printf( "input values.\n", param.num_input );
 	for( int i = 0; i < param.num_input; i++ ){
 		double value;
-		std::cin >> value;
-		while( !std::cin ){
-			std::cout << "ちゃんと入力しちくり〜\n>" << std::flush;
-			std::cin.clear();
-			std::cin.ignore( INT_MAX, '\n' );
-			std::cin >> value;
-		}
+		printf( "[%d/%d]", i + 1, param.num_input );
+		value = input_key< double >( 0, 1 );
 		input.push_back( value );
 	}
 	input.push_back( 1.0 ); //閾値
@@ -89,7 +85,7 @@ void execute( const Params param, Net& net )
 	//表示
 	printf( "--出力--\n" );
 	for( int i = 0; i < (int)output.size(); i++ ){
-		printf( "%d:%lf\n", i+1, output[i] );
+		printf( "%d:%G\n", i+1, output[i] );
 	}
 	printf( "--------\n" );
 }

@@ -1,6 +1,7 @@
 #include<cstdlib>
 #include<cstdio>
 #include<cmath>
+#include<fstream>
 #include"Net.h"
 #include"mylib.h"
 
@@ -42,7 +43,7 @@ std::vector< double > Net::output( const std::vector< double >& input )
 
 	//状態の表示
 	printf( "***********Configuration***********\n"
-			"Hidden Nodes = %d, gain = %lf\n"
+			"Hidden Nodes = %d, gain = %g\n"
 			"***********************************\n", param_bk.num_hidden, param_bk.s_gain );
 	//隠れ素子値の計算
 	for( int j = 0; j < param_bk.num_hidden ; j++ ){
@@ -98,6 +99,9 @@ void Net::learn( const std::vector< TrainingData >& target )
 	init_node();
 	init_weight();
 
+	char buf[1024];
+	std::ofstream ofs("train.log");
+
 	int ilearn;
 	double error, max_error;
 	for( ilearn = 0; ilearn < param->num_learn; ilearn++ ){
@@ -119,7 +123,8 @@ void Net::learn( const std::vector< TrainingData >& target )
 				max_error = error;
 			}
 
-			//printf("学習回数 = %d, 訓練データNO.%d, 誤差 = %lf\n", ilearn, isample+1, error);
+			sprintf( buf, "学習回数 = %d, 訓練データNO.%d, 誤差 = %G\n", ilearn, isample+1, error);
+			ofs << buf;
 
 			//逆方向の動作
 			//出力層素子
@@ -133,7 +138,7 @@ void Net::learn( const std::vector< TrainingData >& target )
 			break;
 		}
 	}
-	printf( "学習回数:%d, 誤差:%lf\n",ilearn, max_error );
+	printf( "学習回数:%d, 誤差:%G\n",ilearn, max_error );
 	param->is_trained = true;
 }
 

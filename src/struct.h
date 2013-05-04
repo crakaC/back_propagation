@@ -7,11 +7,11 @@
 
 //訓練データ
 struct TrainingData{
-	std::vector< int > input;
-	std::vector< int > output;
+	std::vector< double > input;
+	std::vector< double > output;
 	TrainingData(int i, int o){
-		input = std::vector<int>(i);
-		output = std::vector<int>(o);
+		input = std::vector< double >(i);
+		output = std::vector< double >(o);
 	}
 };
 
