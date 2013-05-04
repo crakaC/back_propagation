@@ -36,17 +36,17 @@ void Params::set_hidden_num()
 }
 void Params::set_s_gain()
 {
-	printf( "シグモイド関数ゲイン(現在%lf)", s_gain );
+	printf( "シグモイド関数ゲイン(現在%lf) > ", s_gain );
 	s_gain = input_key<double>( -10.0, 10.0 );
 }
 void Params::set_epsilon()
 {
-	printf( "学習重みε(現在%lf)", epsilon );
+	printf( "学習重みε(現在%lf) > ", epsilon );
 	epsilon = input_key<double>( 0, 10.0 );
 }
 
 void Params::set_threshold_error()
 {
-	printf( "許容誤差(現在%lf)", threshold_error );
-	threshold_error = input_key<double>( 0.00001, 100 );
+	printf( "許容誤差(現在%lf) > ", threshold_error );
+	threshold_error = input_key<double>( 0.00001, 1 );
 }
