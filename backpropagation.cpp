@@ -12,6 +12,8 @@
 #include"struct.h"
 #include"mylib.h"
 #include"bp.h"
+#include"Net.h"
+
 
 //結線の重み。
 std::map< Pair, double > w1, w2;
