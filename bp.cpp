@@ -53,55 +53,32 @@ void set_data(params& param, std::vector< TrainingData >& target, const std::str
 	}
 }
 
-void learn(const params param, const std::vector< TrainingData >& target, Net& net)
+void execute(const params param, Net& net)
 {
-	//結線の重みを初期化
-	net.init_weight();
-	//各素子を初期化
-	net.init_node();
-	//学習
-	net.learn(target);
-}
-
-void execute(const params param, Net net)
-{
-	std::map< Pair, double > w1 = net.w1, w2 = net.w2;
-	const int n_input = param.num_input, n_hidden = param.num_hidden, n_output = param.num_output;
-	const double gain = param.s_gain;
 	//各素子の値を入れるためのやつ
-	std::vector< double > x(n_input + 1), h(n_hidden + 1), y(n_output);
+	std::vector< double > input, output;
 
-	printf( "入力値はいかがなさいますか？(n = %d)\n>",n_input);
-	for(int i = 0; i < n_input; i++){
-		std::cin >> x[i];
+	printf( "入力値はいかがなさいますか？(n = %d)\n>",param.num_input);
+	for(int i = 0; i < param.num_input; i++){
+		double value;
+		std::cin >> value;
 		while(!std::cin){
 			std::cout <<"ちゃんと入力しちくり〜\n>"<<std::flush;
 			std::cin.clear();
 			std::cin.ignore(INT_MAX, '\n');
-			std::cin >> x[i];
+			std::cin >> value;
 		}
+		input.push_back(value);
 	}
-	x[n_input] = 1.0; //閾値
+	input.push_back(1.0); //閾値
 
-	//出力を求める。学習のとこのコピペなのでまとめたい。
-	//隠れ素子値の計算
-	for(int j = 0; j < n_hidden; j++){
-		double net_input = 0;
-		for(int i = 0; i < n_input + 1; i++){
-			net_input += w1[ Pair(i,j) ] * x[i];
-		}
-		h[j] = sigmoid(net_input, gain);
-	}
+	//出力を求める。
+	output = net.output(input);
 
-	//出力値の計算
+	//表示
 	printf("--出力--\n");
-	for(int j = 0; j < n_output; j++){
-		double net_input = 0;
-		for(int i = 0; i < n_hidden + 1; i++){
-			net_input += w2[ Pair(i,j) ] * h[i];
-		}
-		y[j] = sigmoid(net_input, gain);
-		printf("%d:%lf\n", j+1, y[j]);
+	for(int i = 0; i < (int)output.size(); i++){
+		printf("%d:%lf\n", i+1, output[i]);
 	}
 	printf("--------\n");
 }

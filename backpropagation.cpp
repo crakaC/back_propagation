@@ -32,8 +32,7 @@ int main()
 			break;
 		case 2:
 			//学習
-			cout <<"learn and optimize weight of node connections"<< endl;
-			learn(p, target, net);
+			net.learn( target );
 			break;
 		case 3:
 			//試してみる

@@ -57,7 +57,7 @@ std::vector< double > Net::output(const std::vector< double >& input)
 	return output;
 }
 
-//引数なし：メンバのxから,yを更新する。
+//メンバのxから,yを更新する。
 void Net::update_y()
 {
 	double net_input;
