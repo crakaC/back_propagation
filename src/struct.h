@@ -1,3 +1,4 @@
+
 #ifndef STRUCT_H_20130504
 #define STRUCT_H_20130504
 
@@ -15,22 +16,21 @@ struct TrainingData{
 };
 
 //パラメータ
-struct params{
+class Params{
+public:
 	int num_learn, num_sample;//学習打ち切り回数、訓練データ数
 	int num_input, num_hidden, num_output;//入力素子数、隠れ層素子数、出力素子数
 	double s_gain, epsilon;//シグモイド関数ゲイン、学習重み
 	double threshold_error;//許容誤差
 	bool is_trained, is_empty;
-	params(){
-		num_input = num_hidden = num_output = 0;
-		num_learn = 10000;
-		num_hidden = 10;
-		s_gain = 1.0;
-		epsilon = 0.05;
-		threshold_error = 0.01;
-		is_empty = true;
-		is_trained = false;
-	}
+	Params();
+	Params( const Params& p );
+	void set_all();
+	void set_learn_num();
+	void set_hidden_num();
+	void set_s_gain();
+	void set_epsilon();
+	void set_threshold_error();
 };
 
 typedef std::pair< int,int > Pair;

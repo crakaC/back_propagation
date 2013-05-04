@@ -7,8 +7,8 @@
 
 class Net{
 public:
-	Net(params* p);
-	std::vector< double > output(const std::vector< double >& input);
+	Net( Params* p );
+	std::vector< double > output( const std::vector< double >& input );
 	void learn( const std::vector< TrainingData >& target );
 
 private:
@@ -22,7 +22,8 @@ private:
 	std::vector< double >x, h, y;
 	std::vector< double >h_back, y_back;
 	std::map< Pair, double > w1, w2;
-	params* param;
+	Params* param;
+	Params param_bk;//学習時に設定を保存し、学習後隠れ層素子数を変更してもsegmentation faultが発生しないようにする。
 };
 
 #endif
