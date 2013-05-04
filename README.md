@@ -1,3 +1,1 @@
-back_propagation
-================
-誤差逆伝播法のアルゴリズムです。
+誤差逆伝播法（Back Propagation）のアルゴリズムです。
