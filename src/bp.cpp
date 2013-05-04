@@ -70,7 +70,7 @@ void execute( const Params param, Net& net )
 	//各素子の値を入れるためのやつ
 	std::vector< double > input, output;
 
-	printf( "input values.\n", param.num_input );
+	printf( "input values.\n" );
 	for( int i = 0; i < param.num_input; i++ ){
 		double value;
 		printf( "[%d/%d]", i + 1, param.num_input );

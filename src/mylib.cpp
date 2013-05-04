@@ -55,11 +55,9 @@ void create_training_data()
 		for(int j = 0; j < input_num; j++){
 			ofs << p[j] <<' ';
 		}
-
 		delete[] p;
 
 		p = new double[ output_num ];
-
 		for(int j = 0; j < output_num; j++){
 			printf("[%d/%d]output%d > ", i + 1, sample_num, j + 1 );
 			cin >> p[j];
@@ -72,6 +70,7 @@ void create_training_data()
 				ofs << p[j] << endl;
 			}
 		}
+		delete[] p;
 	}
 	printf( "データを作成しました(%s)\n", filename.c_str() );
 }
