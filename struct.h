@@ -1,6 +1,8 @@
 #ifndef STRUCT_H_20130504
 #define STRUCT_H_20130504
 
+#include<vector>
+
 //訓練データ
 struct TrainingData{
 	std::vector< int > input;

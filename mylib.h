@@ -3,6 +3,7 @@
 
 #include<iostream>
 #include<climits>
+#include"struct.h"
 
 //シグモイド関数
 //引数 s:細胞内電位, gain:ゲイン
@@ -28,5 +29,8 @@ template<class T> T input_key(T min, T max){
 	}
 	return value;
 }
+
+//パラメータの設定
+void config(params* param);
 
 #endif

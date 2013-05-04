@@ -4,75 +4,17 @@
 //2行目以降、入力値、出力値をスペースまたは改行で区切って記述。
 #include<iostream>
 #include<cmath>
-#include<fstream>
-#include<climits>
+#include<cstdio>
 #include<cstdlib>
 #include<string>
 #include<vector>
 #include<map>
 #include"struct.h"
 #include"mylib.h"
-
-//表示テキスト
-const std::string MSG[3] ={
-	"1.訓練データ入力\n2.学習\n3.試してみる\n4.パラメータ調整\n0.終了",
-	"hoge",
-	"piyo"
-};
+#include"bp.h"
 
 //結線の重み。
 std::map< Pair, double > w1, w2;
-
-//ファイルから訓練データを読み込む
-void set_data(params& param, std::vector< TrainingData >& target, const std::string filename = "training2.dat")
-{
-	using namespace std;
-	ifstream ifs;
-	ifs.open(filename.c_str());
-
-	//ファイルを開けなかったら戻る。
-	if(!ifs.is_open()){
-		cout <<"cannot open " << filename << endl;
-		return;
-	}
-
-	//データからパラメータを読み込む
-	ifs >> param.num_sample >> param.num_input >> param.num_output;
-
-	//訓練データをtargetに格納
-	for(int isample = 0; isample < param.num_sample ; isample++){
-		target.push_back(TrainingData(param.num_input, param.num_output));
-		for(int i = 0; i < param.num_input; i++){
-			ifs >> target[isample].input[i];
-		}
-		for(int i = 0; i < param.num_output; i++){
-			ifs >> target[isample].output[i];
-		}
-	}
-
-	//訓練データを表示
-	printf("input training data from %s\n",filename.c_str());
-	for(int isample = 0; isample < param.num_sample; isample++){
-		cout <<"訓練データ No."<< isample+1 << endl;
-		cout <<"入力：";
-		int size = (int) target[isample].input.size();
-		for( int i = 0; i < size; i++){
-			cout << target[isample].input[i];
-			if(i < size - 1){
-				cout << ' ';
-			}
-		}
-		cout << endl << "出力：";
-		size = (int) target[isample].output.size();
-		for(int i = 0; i < size; i++){
-			cout << target[isample].output[i];
-			if(i < size - 1){
-				cout << ' ';
-			}
-		}
-		cout << endl;
-	}
-}
 
 void learn(const params param, const std::vector< TrainingData >& target)
 {
@@ -219,23 +161,15 @@ void execute(const params param)
 	printf("--------\n");
 }
 
-
-//パラメータの設定
-void config(params* param){
-	printf("隠れ層素子数(現在%d) > ",param->num_hidden);
-	param->num_hidden = input_key<int>(1,100);
-	printf("シグモイド関数ゲイン(現在%lf)", param->s_gain);
-	param->s_gain = input_key<double>(-10.0, 10.0);
-	printf("学習重みε(現在%lf)",param->epsilon);
-	param->epsilon = input_key<double>(0,10.0);
-	printf("許容誤差(現在%lf)",param->threshold_error);
-	param->threshold_error = input_key<double>(0.00001,100);
-}
-
 int main()
 {
 	using namespace std;
-
+//表示テキスト
+	const string MSG[3] ={
+		"1.訓練データ入力\n2.学習\n3.試してみる\n4.パラメータ調整\n0.終了",
+		"hoge",
+		"piyo"
+	};
 	vector< TrainingData > target;
 	params p;
 	int key = -1; //キー入力
@@ -245,7 +179,7 @@ int main()
 		switch(key){
 		case 1:
 			//データ入力
-			set_data(p, target);
+			set_data(p, target,"training2.dat");
 			break;
 		case 2:
 			//学習
