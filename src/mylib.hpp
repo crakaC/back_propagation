@@ -5,7 +5,7 @@
 #include<climits>
 #include<vector>
 #include<string>
-#include"Net.h"
+#include"Net.hpp"
 
 //キー入力を指定した値の範囲に制限。
 template<class T> T input_key( T min, T max ){

@@ -9,10 +9,10 @@ backpropagation: backpropagation.o mylib.o Net.o struct.o Net_setter_and_getter.
 .cpp.o:
 	$(CC) $(CFLAGS) -c $<
 
-mylib.o:mylib.h struct.h Net.h
-Net.o:Net.h struct.h
-Net_setter_and_getter.o:Net.h struct.h
-struct.o:struct.h
+mylib.o:mylib.hpp struct.hpp Net.hpp
+Net.o:Net.hpp struct.hpp
+Net_setter_and_getter.o:Net.hpp struct.hpp
+struct.o:struct.hpp
 
 .PHONY: clean
 clean:

@@ -3,7 +3,7 @@
 #include<string>
 #include<iostream>
 #include<fstream>
-#include"mylib.h"
+#include"mylib.hpp"
 
 //訓練データを作成する
 void create_training_data()

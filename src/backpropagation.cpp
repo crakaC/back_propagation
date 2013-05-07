@@ -2,8 +2,8 @@
 
 #include<iostream>
 #include<string>
-#include"mylib.h"
-#include"Net.h"
+#include"mylib.hpp"
+#include"Net.hpp"
 
 int main()
 {

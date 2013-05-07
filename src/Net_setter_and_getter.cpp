@@ -1,6 +1,6 @@
 #ifndef NET_SETTER_AND_GETTER_H_20130507
 #define NET_SETTER_AND_GETTER_H_20130507
-#include"Net.h"
+#include"Net.hpp"
 
 void Net::set_learn_num( int n )
 {

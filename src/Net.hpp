@@ -3,7 +3,7 @@
 
 #include<vector>
 #include<map>
-#include"struct.h"
+#include"struct.hpp"
 
 class Net{
 public:

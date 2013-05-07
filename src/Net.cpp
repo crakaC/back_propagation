@@ -2,7 +2,7 @@
 #include<cstdio>
 #include<cmath>
 #include<fstream>
-#include"Net.h"
+#include"Net.hpp"
 
 Net::Net(){
 }
