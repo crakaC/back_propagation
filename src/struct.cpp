@@ -1,6 +1,4 @@
-#include<cstdio>
 #include"struct.h"
-#include"mylib.h"
 
 Params::Params()
 {

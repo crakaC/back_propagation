@@ -186,11 +186,11 @@ void Net::learn()
 				max_error = error;
 			}
 
+			//logの生成
 			sprintf( buf, "学習回数 = %d, 訓練データNO.%d, 誤差 = %G\n", ilearn, isample+1, error);
 			ofs << buf;
 
 			//逆方向の動作
-			//出力層素子
 			reverse( target[isample] );
 			//重みの修正
 			fix_weight();

@@ -1,7 +1,5 @@
 //Back Propagation
-//訓練データの形式として
-//1行目に、データ数、入力数、出力数を記述
-//2行目以降、入力値、出力値をスペースまたは改行で区切って記述。
+
 #include<iostream>
 #include<string>
 #include"mylib.h"
@@ -35,11 +33,12 @@ int main()
 			test_bp( &net );
 			break;
 		case 4:
+			//パラメータの調整
 			while( key != 0 ){
 				show_msg( conf_msg );
 				key = input_key< int >( 0, (int)conf_msg.size() - 1 );
 				switch(key){
-				case 1:				//パラメータの調整(一括)
+				case 1:
 					set_all_params( &net );
 					break;
 				case 2:
