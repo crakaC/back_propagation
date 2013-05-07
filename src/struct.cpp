@@ -5,48 +5,11 @@
 Params::Params()
 {
 		num_input = num_hidden = num_output = 0;
-		num_learn = 10000;
+		num_learn = 50000;
 		num_hidden = 10;
 		s_gain = 1.0;
 		epsilon = 0.07;
 		threshold_error = 0.00001;
 		is_empty = true;
 		is_trained = false;
-}
-
-void Params::set_all()
-{
-	set_learn_num();
-	set_hidden_num();
-	set_s_gain();
-	set_epsilon();
-	set_threshold_error();
-}
-
-void Params::set_learn_num()
-{
-	printf( "学習回数(現在%d) ", num_learn );
-	num_learn = input_key<int>( 1, INT_MAX - 1 );
-}
-
-void Params::set_hidden_num()
-{
-	printf( "中間層素子数(現在%d) ", num_hidden );
-	num_hidden = input_key<int>( 1, 100 );
-}
-void Params::set_s_gain()
-{
-	printf( "シグモイド関数ゲイン(現在%G) ", s_gain );
-	s_gain = input_key<double>( -10.0, 10.0 );
-}
-void Params::set_epsilon()
-{
-	printf( "学習重みε(現在%G) ", epsilon );
-	epsilon = input_key<double>( 0, 10.0 );
-}
-
-void Params::set_threshold_error()
-{
-	printf( "許容誤差(現在%G) ", threshold_error );
-	threshold_error = input_key<double>( 1e-60, 1 );
 }

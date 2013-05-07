@@ -1,17 +1,17 @@
 CC=g++
-CFLAGS=-Wall
+CFLAGS=-Wall -O3
 .SUFFIXES = .cpp
 objs:=$(wildcard *.o)
 
-backpropagation: backpropagation.o mylib.o bp.o Net.o struct.o
-	$(CC) $(CFLAGS) -o backpropagation backpropagation.o mylib.o bp.o Net.o struct.o
+backpropagation: backpropagation.o mylib.o Net.o struct.o Net_setter_and_getter.o
+	$(CC) $(CFLAGS) -o backpropagation backpropagation.o mylib.o Net.o struct.o Net_setter_and_getter.o
 
 .cpp.o:
 	$(CC) $(CFLAGS) -c $<
 
-bp.o:bp.h struct.h
-mylib.o:mylib.h struct.h
+mylib.o:mylib.h struct.h Net.h
 Net.o:Net.h struct.h
+Net_setter_and_getter.o:Net.h struct.h
 struct.o:struct.h
 
 .PHONY: clean

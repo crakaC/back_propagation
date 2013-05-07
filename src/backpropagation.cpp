@@ -15,9 +15,7 @@ int main()
 
 	//表示テキスト
 	const vector< string > msg = gen_msg(), conf_msg = gen_msg2();
-	vector< TrainingData > target;
-	Params p;
-	Net net( &p );
+	Net net = Net();
 	int key = -1; //キー入力
 	string filename;
 	while( key != 0 ){
@@ -28,39 +26,38 @@ int main()
 			//データ入力
 			cout << "input file name > "<<flush;
 			cin >> filename;
-			set_data( p, target, filename );
+			net.set_training_data( filename );
 			break;
 		case 2:
 			//学習
-			net.learn( target );
+			net.learn();
 			break;
 		case 3:
 			//試してみる
-			execute( p, net );
+			test_bp( &net );
 			break;
 		case 4:
-			//パラメータの調整(一括)
-			p.set_all();
-			break;
-		case 5:
 			while( key != 0 ){
 				show_msg( conf_msg );
 				key = input_key< int >( 0, (int)conf_msg.size() - 1 );
 				switch(key){
-				case 1:
-					p.set_hidden_num();
+				case 1:				//パラメータの調整(一括)
+					set_all_params( &net );
 					break;
 				case 2:
-					p.set_learn_num();
+					set_hidden_nodes_num( &net );
 					break;
 				case 3:
-					p.set_threshold_error();
+					set_learn_num( &net );
 					break;
 				case 4:
-					p.set_s_gain();
+					set_threshold_error( &net );
 					break;
 				case 5:
-					p.set_epsilon();
+					set_s_gain( &net );
+					break;
+				case 6:
+					set_epsilon( &net );
 					break;
 				case 0:
 					cout << "（ ＾ω＾）戻るお。" << endl;
@@ -68,7 +65,7 @@ int main()
 			}
 			key = -1;
 			break;
-		case 6:
+		case 5:
 			//訓練データ作成
 			create_training_data();
 			break;

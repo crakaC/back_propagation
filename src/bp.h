@@ -5,8 +5,6 @@
 #include"struct.h"
 #include"Net.h"
 
-void set_data( Params& param, std::vector< TrainingData >& target, const std::string filename );
 
-void execute( const Params param, Net& net );
 
 #endif

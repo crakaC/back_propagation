@@ -5,6 +5,7 @@
 #include<climits>
 #include<vector>
 #include<string>
+#include"Net.h"
 
 //キー入力を指定した値の範囲に制限。
 template<class T> T input_key( T min, T max ){
@@ -23,11 +24,30 @@ template<class T> T input_key( T min, T max ){
 	return value;
 }
 
+char y_or_n();
+
+//訓練データの作成
 void create_training_data();
 
+//自分で値を入力して実行
+void test_bp( Net* net );
+void execute( Net* net );
+
+//コマンドライン用メッセージ1
 std::vector< std::string > gen_msg();
 
+//コマンドライン用メッセージ2
 std::vector< std::string > gen_msg2();
 
+//コマンドライン用メッセージ表示
 void show_msg(const std::vector< std::string > msg);
+
+//ニューラルネット各種パラメータ設定
+void set_all_params( Net* net );
+void set_hidden_nodes_num( Net* net );
+void set_learn_num( Net* net );
+void set_threshold_error( Net* net );
+void set_s_gain( Net* net );
+void set_epsilon( Net* ney );
+
 #endif
