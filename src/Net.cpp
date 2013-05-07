@@ -166,7 +166,7 @@ void Net::learn()
 	std::ofstream ofs("train.log");
 
 	int ilearn;
-	double error, max_error;
+	double error = 0, max_error = 0;
 	for( ilearn = 0; ilearn < param.num_learn; ilearn++ ){
 		max_error = 0;
 		for( int isample = 0; isample < param.num_sample; isample++ ){

@@ -4,9 +4,7 @@
 //2行目以降、入力値、出力値をスペースまたは改行で区切って記述。
 #include<iostream>
 #include<string>
-#include"struct.h"
 #include"mylib.h"
-#include"bp.h"
 #include"Net.h"
 
 int main()

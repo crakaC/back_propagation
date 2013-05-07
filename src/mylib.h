@@ -31,7 +31,7 @@ void create_training_data();
 
 //自分で値を入力して実行
 void test_bp( Net* net );
-void execute( Net* net );
+bool execute( Net* net );
 
 //コマンドライン用メッセージ1
 std::vector< std::string > gen_msg();

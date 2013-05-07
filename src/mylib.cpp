@@ -69,7 +69,9 @@ void create_training_data()
 void test_bp( Net* net ){
 	char key = -1;
 	do{
-		execute( net );
+		if( !execute( net )){
+			return;
+		}
 		printf( "もう一度試しますか？" );
 		key = y_or_n();
 	}while( key == 'y' );
@@ -77,13 +79,13 @@ void test_bp( Net* net ){
 }
 
 //キーボードからデータを入力して実行
-void execute( Net* net )
+bool execute( Net* net )
 {
 	int num_input = net->get_input_num();
 
 	if( !( net->is_trained() ) ){
 		printf( "先に訓練データを学習してください\n" );
-		return;
+		return false;
 	}
 	//各素子の値を入れるためのやつ
 	std::vector< double > input, output;
@@ -106,6 +108,8 @@ void execute( Net* net )
 		printf( "%d:%G\n", i+1, output[i] );
 	}
 	printf( "------------------\n" );
+
+	return true;
 }
 
 char y_or_n()
