@@ -6,16 +6,6 @@
 #include<iostream>
 #include<fstream>
 #include"mylib.h"
-//シグモイド関数
-double sigmoid( const double s , const double gain ){
-	return  1 / ( (double)1 + exp( gain * (-s) ) );
-}
-
-//-1から1の範囲の乱数を返す。
-double d_rand(){
-	double ret = static_cast<double>( rand() ) / static_cast<double>( RAND_MAX );
-	return ( rand()%2 == 0 ) ? ret : -ret;
-}
 
 //訓練データを作成する
 void create_training_data()
@@ -73,4 +63,42 @@ void create_training_data()
 		delete[] p;
 	}
 	printf( "データを作成しました(%s)\n", filename.c_str() );
+}
+
+//コマンドライン用メッセージその１
+std::vector< std::string > gen_msg()
+{
+	std::vector< std::string > msg;
+	msg.push_back("訓練データ入力");
+	msg.push_back("学習");
+	msg.push_back("試してみる");
+	msg.push_back("一括パラメータ調整");
+	msg.push_back("パラメータ調整");
+	msg.push_back("訓練データ作成");
+	msg.push_back("終了");
+
+	return msg;
+}
+
+//コマンドライン用メッセージその２
+std::vector< std::string > gen_msg2()
+{
+	std::vector< std::string > msg;
+	msg.push_back("中間層素子数設定");
+	msg.push_back("学習回数設定");
+	msg.push_back("許容誤差設定");
+	msg.push_back("ゲイン設定");
+	msg.push_back("学習重み設定");
+	msg.push_back("戻る");
+
+	return msg;
+}
+
+void show_msg(const std::vector< std::string > msg)
+{
+	int i;
+	for( i = 0; i < (int)msg.size() - 1; i++ ){
+		std::cout << i+1 << ':' << msg[i] << std::endl;
+	}
+	std::cout << "0:" << msg[i] << std::endl;
 }

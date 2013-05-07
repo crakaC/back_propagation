@@ -3,16 +3,8 @@
 
 #include<iostream>
 #include<climits>
-#include"struct.h"
-
-//シグモイド関数
-//引数 s:細胞内電位, gain:ゲイン
-//返り値 0~1
-double sigmoid( const double s , const double gain );
-
-//擬似乱数
-//返り値 -1~1
-double d_rand();
+#include<vector>
+#include<string>
 
 //キー入力を指定した値の範囲に制限。
 template<class T> T input_key( T min, T max ){
@@ -32,4 +24,10 @@ template<class T> T input_key( T min, T max ){
 }
 
 void create_training_data();
+
+std::vector< std::string > gen_msg();
+
+std::vector< std::string > gen_msg2();
+
+void show_msg(const std::vector< std::string > msg);
 #endif

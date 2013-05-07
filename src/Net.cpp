@@ -3,7 +3,6 @@
 #include<cmath>
 #include<fstream>
 #include"Net.h"
-#include"mylib.h"
 
 Net::Net( Params* p ){
 	this->param = p;
@@ -12,55 +11,63 @@ Net::Net( Params* p ){
 void Net::init_weight(){
 	//結線の重みを初期化
 	srand( time( NULL ) );
-	for( int i = 0; i < this->param->num_input + 1; i++ ){
-		for( int j = 0; j < this->param->num_hidden; j++ ){
+	for( int i = 0; i < param->num_input + 1; i++ ){
+		for( int j = 0; j < param->num_hidden; j++ ){
 			w1[ Pair(i, j) ] = d_rand();
 		}
 	}
-	for( int i = 0; i < this->param->num_hidden + 1; i++ ){
-		for( int j = 0; j < this->param->num_output; j++ ){
+	for( int i = 0; i < param->num_hidden + 1; i++ ){
+		for( int j = 0; j < param->num_output; j++ ){
 			w2[ Pair(i, j) ] = d_rand();
 		}
 	}
 }
 
+//シグモイド関数
+double Net::sigmoid( const double s ){
+	return  1 / ( (double)1 + exp( param->s_gain * (-s) ) );
+}
+
+//-1から1の範囲の乱数を返す。
+double Net::d_rand(){
+	double ret = static_cast<double>( rand() ) / static_cast<double>( RAND_MAX );
+	return ( rand()%2 == 0 ) ? ret : -ret;
+}
+
+//各素子を初期化
 void Net::init_node()
 {
-	//各素子を初期化
-	this->x.assign( param->num_input + 1, (double)0 );
-	this->h.assign( param->num_hidden + 1, (double)0 );
-	this->y.assign( param->num_output, (double)0 );
-	this->h_back.assign( param->num_hidden, (double)0 );
-	this->y_back.assign( param->num_output, (double)0 );
+	x.assign( param->num_input + 1, (double)0 );
+	h.assign( param->num_hidden + 1, (double)0 );
+	y.assign( param->num_output, (double)0 );
+	h_back.assign( param->num_hidden, (double)0 );
+	y_back.assign( param->num_output, (double)0 );
 
 	//設定を記憶 Paramにポインタはないからこれで大丈夫なはず。
 	param_bk = *param;
 }
 
+//与えられた入力データを用いて出力データを返す．
 std::vector< double > Net::output( const std::vector< double >& input )
 {
 	std::vector< double > output( param_bk.num_output );
 
-	//状態の表示
-	printf( "***********Configuration***********\n"
-			"Hidden Nodes = %d, gain = %g\n"
-			"***********************************\n", param_bk.num_hidden, param_bk.s_gain );
-	//隠れ素子値の計算
+	//隠れ素子の値を計算
 	for( int j = 0; j < param_bk.num_hidden ; j++ ){
 		double net_input = 0;
 		for( int i = 0; i < param_bk.num_input + 1; i++ ){
-			net_input += this->w1[ Pair(i, j) ] * input[i];
+			net_input += w1[ Pair(i, j) ] * input[i];
 		}
-		this->h[j] = sigmoid( net_input, param_bk.s_gain );
+		h[j] = sigmoid( net_input );
 	}
 
 	//出力値の計算
 	for( int j = 0; j < param_bk.num_output; j++ ){
 		double net_input = 0;
 		for( int i = 0; i < param_bk.num_hidden + 1; i++ ){
-			net_input += this->w2[ Pair(i, j) ] * this->h[i];
+			net_input += w2[ Pair(i, j) ] * h[i];
 		}
-		output[j] = sigmoid( net_input, param_bk.s_gain );
+		output[j] = sigmoid( net_input );
 	}
 
 	return output;
@@ -71,21 +78,21 @@ void Net::update_y()
 {
 	double net_input;
 	//隠れ素子値の計算
-	for( int j = 0; j < this->param->num_hidden; j++ ){
+	for( int j = 0; j < param->num_hidden; j++ ){
 		net_input = 0;
-		for( int i = 0; i < this->param->num_input + 1; i++ ){
-			net_input += this->w1[ Pair(i, j) ] * this->x[i];
+		for( int i = 0; i < param->num_input + 1; i++ ){
+			net_input += w1[ Pair(i, j) ] * x[i];
 		}
-		this->h[j] = sigmoid( net_input, this->param->s_gain );
+		h[j] = sigmoid( net_input );
 	}
 
 	//出力値の計算
-	for( int j = 0; j < this->param->num_output; j++ ){
+	for( int j = 0; j < param->num_output; j++ ){
 		net_input = 0;
-		for( int i = 0; i < this->param->num_hidden + 1; i++ ){
-			net_input += this->w2[ Pair(i, j) ] * this->h[i];
+		for( int i = 0; i < param->num_hidden + 1; i++ ){
+			net_input += w2[ Pair(i, j) ] * h[i];
 		}
-		this->y[j] = sigmoid( net_input, this->param->s_gain );
+		y[j] = sigmoid( net_input );
 	}
 }
 
@@ -110,9 +117,9 @@ void Net::learn( const std::vector< TrainingData >& target )
 			//順方向の動作
 			//入力値を訓練データからxにつっこむ
 			for( int i = 0; i < param->num_input; i++ ){
-				this->x[i] = target[isample].input[i];
+				x[i] = target[isample].input[i];
 			}
-			this->x[param->num_input] = 1.0; //閾値
+			x[param->num_input] = 1.0; //閾値
 
 			//入力から出力の値を計算
 			update_y();

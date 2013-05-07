@@ -18,12 +18,17 @@ private:
 	void reverse( const TrainingData& target );
 	void fix_weight();
 	double check_error( const TrainingData& target );
+	double sigmoid( double s );
+	double d_rand();//-1~1の乱数
+
 
 	std::vector< double >x, h, y;
 	std::vector< double >h_back, y_back;
 	std::map< Pair, double > w1, w2;
-	Params* param;
+	Params* param;//各種パラメータ
 	Params param_bk; //学習時の状態を保存する
+
+	//std::vector< TrainingData > target; //教師信号
 };
 
 #endif
