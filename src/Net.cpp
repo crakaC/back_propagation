@@ -249,5 +249,3 @@ void Net::reverse( const TrainingData& target )
 		h_back[i] = net_input * (1.0 - h[i]) * h[i] * param.s_gain;
 	}
 }
-
-
