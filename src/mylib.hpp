@@ -26,8 +26,8 @@ template<class T> T input_key( T min, T max ){
 
 char y_or_n();
 
-//訓練データの作成
-void create_training_data();
+//訓練データの作成,読み込み
+void create_training_data( Net* net );
 
 //自分で値を入力して実行
 void test_bp( Net* net );
