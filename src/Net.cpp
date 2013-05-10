@@ -12,7 +12,6 @@ void Net::set_training_data( const std::string filename = "training2.dat" )
 	using namespace std;
 	ifstream ifs;
 	ifs.open( filename.c_str() );
-
 	//ファイルを開けなかったら戻る。
 	if( !ifs.is_open() ){
 		cout << "cannot open " << filename << endl;
