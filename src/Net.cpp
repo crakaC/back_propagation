@@ -86,7 +86,6 @@ void Net::initNode()
 	h_back.resize( param.num_hidden );
 	y_back.resize( param.num_output );
 
-
 	//設定を記憶
 	param_bk = param;
 }
@@ -126,10 +125,10 @@ void Net::initWight(){
 std::vector< double > Net::output( const std::vector< double >& input )
 {
 	std::vector< double > output( param_bk.num_output );
-
+	double net_input = 0;
 	//隠れ素子の値を計算
 	for( int j = 0; j < param_bk.num_hidden ; j++ ){
-		double net_input = 0;
+		net_input = 0;	
 		for( int i = 0; i < param_bk.num_input + 1; i++ ){
 			net_input += w1[i][j] * input[i];
 		}
@@ -138,7 +137,7 @@ std::vector< double > Net::output( const std::vector< double >& input )
 
 	//出力値の計算
 	for( int j = 0; j < param_bk.num_output; j++ ){
-		double net_input = 0;
+		net_input = 0;
 		for( int i = 0; i < param_bk.num_hidden + 1; i++ ){
 			net_input += w2[i][j] * h[i];
 		}
@@ -171,15 +170,21 @@ void Net::updateNodesState()
 	}
 }
 
-void Net::learnBatch()
+void Net::initLearn()
 {
 	if( param.is_empty ){
 		printf( "先に訓練データを入力してください\n" );
 		return;
 	}
-	printf( "gain = %lf, learning_coefficient = %lf, threshold_error = %lf\n", param.s_gain, param.learning_coefficient, param.threshold_error );
+	printf( "hidden_nodes = %d, gain = %lf, learning_coefficient = %lf, threshold_error = %G\n", param.num_hidden, param.s_gain, param.learning_coefficient, param.threshold_error );
 	initNode();
 	initWight();
+	return;
+}
+
+void Net::learnBatch()
+{
+	initLearn();
 
 	char buf[1024];
 	std::ofstream ofs("train_batch.log");
@@ -229,7 +234,6 @@ void Net::calcPartial()
 			// w1_partials[i][j] += (- param.learning_coefficient * x[i] * h_back[j]) + param.interia_coefficient * w1_inertia_term[i][j];
 			// w1_inertia_term[i][j] = tmp;
 			 w1_partials[i][j] += (- param.learning_coefficient * x[i] * h_back[j]);
-
 		}
 	}
 	for( int i = 0; i < param.num_hidden + 1; i++ ){
@@ -275,17 +279,9 @@ void Net::fixWeightByBatch()
 
 void Net::learnOnline()
 {
-	if( param.is_empty ){
-		printf( "先に訓練データを入力してください\n" );
-		return;
-	}
-	printf( "hidden_nodes = %d, gain = %lf, learning_coefficient = %lf, threshold_error = %G\n", param.num_hidden, param.s_gain, param.learning_coefficient, param.threshold_error );
-	initNode();
-	initWight();
-
+	initLearn();
 	//char buf[1024];
 	//std::ofstream ofs("train.log");
-
 	int ilearn;
 	double error = 0, max_error = 0;
 	for( ilearn = 0; ilearn < param.num_learn; ilearn++ ){

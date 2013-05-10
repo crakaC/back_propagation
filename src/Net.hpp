@@ -37,6 +37,7 @@ public:
 private:
 	void initWight();
 	void initNode();
+	void initLearn();
 	void updateNodesState();
 	void reverse( const int iSample );
 	void calcPartial();

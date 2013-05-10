@@ -1,5 +1,6 @@
 CC=g++
-CFLAGS=-Wall -O0
+CFLAGS=-Wall -O3
+DEBUG_FLAGS=-Wall -O0 -g
 .SUFFIXES = .cpp
 SRC_DIR = src
 BUILD_DIR = bin
@@ -20,11 +21,11 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 $(BUILD_DIR)/$(TARGET): $(patsubst $(SRC_DIR)/%,$(BUILD_DIR)/%,$(OBJS))
 	$(CC) $(CFLAGS) -o $@ $^
 
-gdb: $(patsubst $(SRC_DIR)/%,$(BUILD_DIR)/%,$(OBJS))
-	$(CC) $(CFLAGS) -g -O0 -o a.out $^
+debug: $(patsubst $(SRC_DIR)/%,$(BUILD_DIR)/%,$(OBJS))
+	$(CC) $(DEBUG_FLAGS) -o $(TARGET).out $^
 
 clean:
-	$(RM) -r $(BUILD_DIR)
+	$(RM) $(patsubst %,$(BUILD_DIR)/%,$(TARGET)) $(patsubst $(SRC_DIR)/%,$(BUILD_DIR)/%,$(OBJS)) $(TARGET).out
 
 $(BUILD_DIR)/mylib.o: $(patsubst %,$(SRC_DIR)/%, mylib.hpp struct.hpp Net.hpp )
 $(BUILD_DIR)/Net.o: $(patsubst %,$(SRC_DIR)/%,Net.hpp struct.hpp)
