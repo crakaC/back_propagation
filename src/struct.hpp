@@ -21,7 +21,7 @@ struct Params{
 	int num_input, num_hidden, num_output;//入力素子数、隠れ層素子数、出力素子数
 	double s_gain, epsilon;//シグモイド関数ゲイン、学習重み
 	double threshold_error;//許容誤差
-	bool is_trained, is_empty;
+	bool is_trained, is_empty;//学習済みか、訓練データは存在するか。
 	Params();
 };
 

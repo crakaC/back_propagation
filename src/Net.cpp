@@ -2,7 +2,7 @@
 #include<cstdio>
 #include<cmath>
 #include<fstream>
-#include"Net.h"
+#include"Net.hpp"
 
 Net::Net(){
 }
@@ -63,21 +63,6 @@ void Net::set_training_data( const std::string filename = "training2.dat" )
 }
 
 
-void Net::init_weight(){
-	//結線の重みを初期化
-	srand( time( NULL ) );
-	for( int i = 0; i < param.num_input + 1; i++ ){
-		for( int j = 0; j < param.num_hidden; j++ ){
-			w1[ Pair(i, j) ] = d_rand();
-		}
-	}
-	for( int i = 0; i < param.num_hidden + 1; i++ ){
-		for( int j = 0; j < param.num_output; j++ ){
-			w2[ Pair(i, j) ] = d_rand();
-		}
-	}
-}
-
 //シグモイド関数
 double Net::sigmoid( const double s ){
 	return  1 / ( (double)1 + exp( param.s_gain * (-s) ) );
@@ -92,14 +77,39 @@ double Net::d_rand(){
 //各素子を初期化
 void Net::init_node()
 {
-	x.assign( param.num_input + 1, (double)0 );
-	h.assign( param.num_hidden + 1, (double)0 );
-	y.assign( param.num_output, (double)0 );
-	h_back.assign( param.num_hidden, (double)0 );
-	y_back.assign( param.num_output, (double)0 );
+	x.assign( param.num_input + 1, 0.0 );
+	h.assign( param.num_hidden + 1, 0.0 );
+	y.assign( param.num_output, 0.0 );
+	h_back.assign( param.num_hidden, 0.0 );
+	y_back.assign( param.num_output, 0.0 );
 
+	h_backs.assign( param.num_hidden, std::vector< double >() );
+	y_backs.assign( param.num_output, std::vector< double >() );
+
+	for( int i = 0; i < param.num_hidden; i++ ){
+		h_backs[i].assign( param.num_sample, 0.0);
+	}
+
+	for( int i = 0; i < param.num_output; i++ ){
+		y_backs[i].assign( param.num_sample, 0.0);
+	}
 	//設定を記憶
 	param_bk = param;
+}
+
+//結線の重みを初期化
+void Net::init_weight(){
+	srand( time( NULL ) );
+	for( int i = 0; i < param.num_input + 1; i++ ){
+		for( int j = 0; j < param.num_hidden; j++ ){
+			w1[ Pair(i, j) ] = d_rand();
+		}
+	}
+	for( int i = 0; i < param.num_hidden + 1; i++ ){
+		for( int j = 0; j < param.num_output; j++ ){
+			w2[ Pair(i, j) ] = d_rand();
+		}
+	}
 }
 
 //与えられた入力データを用いて出力データを返す．
@@ -151,6 +161,29 @@ void Net::update_y()
 	}
 }
 
+//メンバのxから,yを更新する。
+void Net::update_y( int isample )
+{
+	double net_input;
+	//隠れ素子値の計算
+	for( int j = 0; j < param.num_hidden; j++ ){
+		net_input = 0;
+		for( int i = 0; i < param.num_input + 1; i++ ){
+			net_input += w1[ Pair(i, j) ] * x[i];
+		}
+		h[j] = sigmoid( net_input );
+	}
+
+	//出力値の計算
+	for( int j = 0; j < param.num_output; j++ ){
+		net_input = 0;
+		for( int i = 0; i < param.num_hidden + 1; i++ ){
+			net_input += w2[ Pair(i, j) ] * h[i];
+		}
+		y[j] = sigmoid( net_input );
+	}
+}
+
 void Net::learn()
 {
 	if( param.is_empty ){
@@ -161,8 +194,57 @@ void Net::learn()
 	init_node();
 	init_weight();
 
-	char buf[1024];
-	std::ofstream ofs("train.log");
+	//char buf[1024];
+	//std::ofstream ofs("train.log");
+
+	int ilearn;
+	double error = 0, total_error = 0;
+	for( ilearn = 0; ilearn < param.num_learn; ilearn++ ){
+		total_error = 0;
+		int isample = 0;
+		for( isample = 0 ; isample < param.num_sample; isample++ ){
+			//順方向の動作
+			//入力値を訓練データからxにつっこむ
+			for( int i = 0; i < param.num_input; i++ ){
+				x[i] = target[isample].input[i];
+			}
+			x[param.num_input] = 1.0; //閾値
+
+			//入力から出力の値を計算
+			update_y( isample );
+
+			//誤差の評価
+			error = 0;
+			for( int j = 0; j < param.num_output; j++ ){
+				error += pow( ( target[isample].output[j] - y[j] ), 2 );
+			}
+			total_error += error;
+		}
+		//逆方向の動作
+		reverse( target[isample] );
+		//重みの修正
+		fix_weight();
+		//誤差が小さくなったらループを抜ける。
+		if( total_error < param.threshold_error ){
+			break;
+		}
+	}
+	printf( "学習回数:%d, 誤差:%G\n",ilearn, total_error );
+	param.is_trained = true;
+}
+
+void Net::learn_online()
+{
+	if( param.is_empty ){
+		printf( "先に訓練データを入力してください\n" );
+		return;
+	}
+	printf( "gain = %lf, epsilon = %lf, threshold_error = %lf\n", param.s_gain, param.epsilon, param.threshold_error );
+	init_node();
+	init_weight();
+
+	//char buf[1024];
+	//std::ofstream ofs("train.log");
 
 	int ilearn;
 	double error = 0, max_error = 0;
@@ -186,8 +268,8 @@ void Net::learn()
 			}
 
 			//logの生成
-			sprintf( buf, "学習回数 = %d, 訓練データNO.%d, 誤差 = %G\n", ilearn, isample+1, error);
-			ofs << buf;
+			//sprintf( buf, "学習回数 = %d, 訓練データNO.%d, 誤差 = %G\n", ilearn, isample+1, error);
+			//ofs << buf;
 
 			//逆方向の動作
 			reverse( target[isample] );
@@ -248,5 +330,3 @@ void Net::reverse( const TrainingData& target )
 		h_back[i] = net_input * (1.0 - h[i]) * h[i] * param.s_gain;
 	}
 }
-
-

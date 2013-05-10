@@ -3,7 +3,7 @@
 
 #include<vector>
 #include<map>
-#include"struct.h"
+#include"struct.hpp"
 
 class Net{
 public:
@@ -11,6 +11,7 @@ public:
 	std::vector< double > output( const std::vector< double >& input );
 	void set_training_data( const std::string filename );
 	void learn();
+	void learn_online();
 	void execute();
 
 	//setter & getter
@@ -37,6 +38,7 @@ private:
 	void init_weight();
 	void init_node();
 	void update_y();
+	void update_y( int isample );
 	void reverse( const TrainingData& target );
 	void fix_weight();
 	double check_error( const TrainingData& target );
@@ -45,6 +47,7 @@ private:
 
 	std::vector< double >x, h, y;
 	std::vector< double >h_back, y_back;
+	std::vector< std::vector< double > > h_backs, y_backs;
 	std::map< Pair, double > w1, w2;
 
 	Params param;//各種パラメータ

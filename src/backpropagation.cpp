@@ -2,8 +2,8 @@
 
 #include<iostream>
 #include<string>
-#include"mylib.h"
-#include"Net.h"
+#include"mylib.hpp"
+#include"Net.hpp"
 
 int main()
 {
@@ -26,7 +26,7 @@ int main()
 			break;
 		case 2:
 			//学習
-			net.learn();
+			net.learn_online();
 			break;
 		case 3:
 			//試してみる
@@ -64,7 +64,7 @@ int main()
 			break;
 		case 5:
 			//訓練データ作成
-			create_training_data();
+			create_training_data( &net );
 			break;
 		case 0:
 			cout << "（ ＾ω＾）終了するお。" << endl;

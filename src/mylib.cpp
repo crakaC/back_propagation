@@ -3,10 +3,10 @@
 #include<string>
 #include<iostream>
 #include<fstream>
-#include"mylib.h"
+#include"mylib.hpp"
 
 //訓練データを作成する
-void create_training_data()
+void create_training_data( Net* net )
 {
 	using namespace std;
 	string filename;
@@ -23,7 +23,7 @@ void create_training_data()
 	}
 
 	//訓練データ数、入力数、出力数を入力
-	cout << "data number " << flush;
+	cout << "sample number" << flush;
 	sample_num = input_key< int >( 1, INT_MAX - 1 );
 	cout << "input number " << flush;
 	input_num = input_key< int >( 1, INT_MAX - 1 );
@@ -60,7 +60,14 @@ void create_training_data()
 		}
 		delete[] p;
 	}
-	printf( "データを作成しました(%s)\n", filename.c_str() );
+
+	printf( "データを作成しました(%s)\n"
+			"読み込みますか？", filename.c_str() );
+
+	if( y_or_n() == 'y'){
+		net->set_training_data( filename );
+	}
+
 }
 
 //入力データから実行
@@ -114,7 +121,7 @@ char y_or_n()
 {
 	using std::cin;
 	char c;
-	printf("[y/n]? > ");
+	printf("[y/n] > ");
 	cin >> c;
 	while( !cin || ( c != 'y'  && c != 'n' ) ){
 		printf( "y か n で入力することを強いられているんだ…！\n" );
