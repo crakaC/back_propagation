@@ -1,12 +1,6 @@
 *.dat
 *.log
 *.out
-<<<<<<< HEAD
 obj/
 *.exe
 backpropagation
-=======
-backpropagation
-backpropagation.exe
-obj/
->>>>>>> break
