@@ -184,13 +184,15 @@ void Net::initLearn()
 
 void Net::learnBatch()
 {
-	initLearn();
 
-	char buf[1024];
-	std::ofstream ofs("train_batch.log");
-
-	int ilearn;
+	//char buf[1024];//buffer for output log.
+	int ilearn;//iterator for learning count.
 	double max_error = 0;
+
+	//std::ofstream ofs("train_batch.log");
+
+	initLearn();//check training data and initialize Nodes and Weight
+
 	for( ilearn = 0; ilearn < param.num_learn; ilearn++ ){
 		max_error = 0;
 		int isample = 0;
@@ -206,15 +208,15 @@ void Net::learnBatch()
 			//誤差の評価
 			for( int j = 0; j < param.num_output; j++ ){
 				max_error = std::max( max_error, pow( ( target[isample].output[j] - y[j] ), 2 ) );
-				//logの生成
-				sprintf( buf, "学習回数 = %d, 訓練データNO.%d, 誤差 = %G\n", ilearn, isample+1, pow( ( target[isample].output[j] - y[j] ), 2 ));
-				ofs << buf;
+				//output log
+				//sprintf( buf, "学習回数 = %d, 訓練データNO.%d, 誤差 = %G\n", ilearn, isample+1, pow( ( target[isample].output[j] - y[j] ), 2 ));
+				//ofs << buf;
 
 			}
 			reverse( isample );
 			calcPartial();
 		}
-		fixWeightByBatch();
+		optimizeWeightByBatch();
 		//誤差が小さくなったらループを抜ける。
 		if( max_error < param.threshold_error ){
 			break;
@@ -261,7 +263,7 @@ void Net::resetPartial()
 	}
 }
 //結線重みの修正
-void Net::fixWeightByBatch()
+void Net::optimizeWeightByBatch()
 {
 	for( int i = 0; i < param.num_input + 1; i++ ){
 		for( int j = 0; j < param.num_hidden; j++ ){
@@ -276,7 +278,7 @@ void Net::fixWeightByBatch()
 	resetPartial();
 }
 
-
+//online learning mode
 void Net::learnOnline()
 {
 	initLearn();
@@ -308,7 +310,7 @@ void Net::learnOnline()
 			//逆方向の動作
 			reverse( isample );
 			//重みの修正
-			fixWeightOnline();
+			optimizeWeightOnline();
 		}
 
 		//誤差が小さくなったらループを抜ける。
@@ -322,7 +324,7 @@ void Net::learnOnline()
 
 
 //結線重みの修正
-void Net::fixWeightOnline()
+void Net::optimizeWeightOnline()
 {
 	for( int i = 0; i < param.num_input + 1; i++ ){
 		for( int j = 0; j < param.num_hidden; j++ ){

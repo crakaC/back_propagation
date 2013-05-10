@@ -42,8 +42,8 @@ private:
 	void reverse( const int iSample );
 	void calcPartial();
 	void resetPartial();
-	void fixWeightByBatch();
-	void fixWeightOnline();
+	void optimizeWeightByBatch();
+	void optimizeWeightOnline();
 	double checkError( const TrainingData& target );
 	double sigmoid( double s );
 	double dRand();//-1~1の乱数
