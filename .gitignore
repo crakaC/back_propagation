@@ -1,4 +1,6 @@
 *.dat
 *.log
 *.out
-bin/
+backpropagation
+backpropagation.exe
+obj/
