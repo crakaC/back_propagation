@@ -155,7 +155,7 @@ std::vector< std::string > genMsg2()
 	msg.push_back("学習回数設定");
 	msg.push_back("許容誤差設定");
 	msg.push_back("ゲイン設定");
-	msg.push_back("学習重み設定");
+	msg.push_back("学習係数設定");
 	msg.push_back("戻る");
 
 	return msg;
@@ -202,10 +202,10 @@ void setSigmoidGain( Net* net )
 	net->setSigmoidGain( inputByKb<double>( -10.0, 10.0 ) );
 }
 
-//学習重みの設定
+//学習係数の設定
 void setLearningCoefficient( Net* net )
 {
-	printf( "学習重みε(現在%G) ", net->getLearningCoefficient() );
+	printf( "学習係数ε(現在%G) ", net->getLearningCoefficient() );
 	net->setLearningCoefficient( inputByKb<double>( 0, 10.0 ) );
 }
 

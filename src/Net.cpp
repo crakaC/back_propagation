@@ -40,10 +40,10 @@ void Net::setTrainingData( const std::string filename = "training2.dat" )
 	}
 
 	//訓練データを表示
-	printf( "input training data from %s\n", filename.c_str() );
+	printf( "***** input training data from %s *****\n", filename.c_str() );
 	for( int isample = 0; isample < param.num_sample; isample++ ){
-		cout << "訓練データ No." << isample+1 << endl;
-		cout << "入力：";
+		printf( "訓練データ No.%d\n", isample + 1 );
+		printf( "入力：" );
 		int size = (int)target[isample].input.size();
 		for( int i = 0; i < size; i++ ){
 			cout << target[isample].input[i];
@@ -51,7 +51,7 @@ void Net::setTrainingData( const std::string filename = "training2.dat" )
 				cout << ' ';
 			}
 		}
-		cout << endl << "出力：";
+		printf("\n出力：");
 		size = (int)target[isample].output.size();
 		for(int i = 0; i < size; i++){
 			cout << target[isample].output[i];
@@ -61,6 +61,7 @@ void Net::setTrainingData( const std::string filename = "training2.dat" )
 		}
 		cout << endl;
 	}
+	printf("*****************************************\n");
 }
 
 
@@ -93,11 +94,20 @@ void Net::initNode()
 //結線の重みを初期化
 void Net::initWight(){
 
+	w1.clear();
 	w1.resize( param.num_input + 1, std::vector< double > ( param.num_hidden ) );
+	w2.clear();
 	w2.resize( param.num_hidden + 1, std::vector< double > ( param.num_output ) );
-	//batch leaning
-	w1_partials.resize( param.num_input + 1, std::vector< double > ( param.num_hidden ) );
-	w2_partials.resize( param.num_hidden + 1, std::vector< double > ( param.num_output ) );
+
+	w1_partials.clear();
+	w1_partials.assign( param.num_input + 1, std::vector< double > ( param.num_hidden, 0.0 ) );
+	w2_partials.clear();
+	w2_partials.assign( param.num_hidden + 1, std::vector< double > ( param.num_output, 0.0 ) );
+
+	w1_inertia_term.clear();
+	w1_inertia_term.assign( param.num_input + 1, std::vector< double > ( param.num_hidden, 0.0 ) );
+	w2_inertia_term.clear();
+	w2_inertia_term.assign( param.num_hidden + 1, std::vector< double > ( param.num_output, 0.0 ) );
 
 	srand( time( NULL ) );
 	for( int i = 0; i < param.num_input + 1; i++ ){
@@ -167,17 +177,17 @@ void Net::learnBatch()
 		printf( "先に訓練データを入力してください\n" );
 		return;
 	}
-	printf( "gain = %lf, epsilon = %lf, threshold_error = %lf\n", param.s_gain, param.epsilon, param.threshold_error );
+	printf( "gain = %lf, learning_coefficient = %lf, threshold_error = %lf\n", param.s_gain, param.learning_coefficient, param.threshold_error );
 	initNode();
 	initWight();
 
-	//char buf[1024];
-	//std::ofstream ofs("train.log");
+	char buf[1024];
+	std::ofstream ofs("train_batch.log");
 
 	int ilearn;
-	double error = 0, total_error = 0;
+	double max_error = 0;
 	for( ilearn = 0; ilearn < param.num_learn; ilearn++ ){
-		total_error = 0;
+		max_error = 0;
 		int isample = 0;
 		for( isample = 0 ; isample < param.num_sample; isample++ ){
 			//順方向の動作
@@ -189,37 +199,48 @@ void Net::learnBatch()
 			updateNodesState();
 
 			//誤差の評価
-			error = 0;
 			for( int j = 0; j < param.num_output; j++ ){
-				error += pow( ( target[isample].output[j] - y[j] ), 2 );
+				max_error = std::max( max_error, pow( ( target[isample].output[j] - y[j] ), 2 ) );
+				//logの生成
+				sprintf( buf, "学習回数 = %d, 訓練データNO.%d, 誤差 = %G\n", ilearn, isample+1, pow( ( target[isample].output[j] - y[j] ), 2 ));
+				ofs << buf;
+
 			}
-			total_error += error;
 			reverse( isample );
 			calcPartial();
 		}
 		fixWeightByBatch();
 		//誤差が小さくなったらループを抜ける。
-		if( total_error < param.threshold_error ){
+		if( max_error < param.threshold_error ){
 			break;
 		}
 	}
-	printf( "学習回数:%d, 誤差:%G\n",ilearn, total_error );
+	printf( "学習回数:%d, 誤差:%G\n",ilearn, max_error );
 	param.is_trained = true;
 }
 
 
 void Net::calcPartial()
 {
+	//double tmp = 0;
 	for( int i = 0; i < param.num_input + 1; i++ ){
 		for( int j = 0; j < param.num_hidden; j++ ){
-			w1_partials[i][j] -= x[i] * h_back[j];
+			// tmp = w1_partials[i][j];
+			// w1_partials[i][j] += (- param.learning_coefficient * x[i] * h_back[j]) + param.interia_coefficient * w1_inertia_term[i][j];
+			// w1_inertia_term[i][j] = tmp;
+			 w1_partials[i][j] += (- param.learning_coefficient * x[i] * h_back[j]);
+
 		}
 	}
 	for( int i = 0; i < param.num_hidden + 1; i++ ){
 		for( int j = 0; j < param.num_output; j++ ){
-			w2_partials[i][j] -=  h[i] * y_back[j];
+			// tmp = w2_partials[i][j];
+			// w2_partials[i][j] += (- param.learning_coefficient * h[i] * y_back[j]) + param.interia_coefficient * w2_inertia_term[i][j];
+			// w2_inertia_term[i][j] = tmp;
+			w2_partials[i][j] += (- param.learning_coefficient * h[i] * y_back[j]);
 		}
 	}
+
 }
 
 void Net::resetPartial()
@@ -240,12 +261,12 @@ void Net::fixWeightByBatch()
 {
 	for( int i = 0; i < param.num_input + 1; i++ ){
 		for( int j = 0; j < param.num_hidden; j++ ){
-			w1[i][j] += param.epsilon * w1_partials[i][j];
+			w1[i][j] +=  w1_partials[i][j];
 		}
 	}
 	for( int i = 0; i < param.num_hidden + 1; i++ ){
 		for( int j = 0; j < param.num_output; j++ ){
-			w2[i][j] += param.epsilon * w2_partials[i][j];
+			w2[i][j] += w2_partials[i][j];
 		}
 	}
 	resetPartial();
@@ -258,7 +279,7 @@ void Net::learnOnline()
 		printf( "先に訓練データを入力してください\n" );
 		return;
 	}
-	printf( "hidden_nodes = %d, gain = %lf, epsilon = %lf, threshold_error = %G\n", param.num_hidden, param.s_gain, param.epsilon, param.threshold_error );
+	printf( "hidden_nodes = %d, gain = %lf, learning_coefficient = %lf, threshold_error = %G\n", param.num_hidden, param.s_gain, param.learning_coefficient, param.threshold_error );
 	initNode();
 	initWight();
 
@@ -309,12 +330,12 @@ void Net::fixWeightOnline()
 {
 	for( int i = 0; i < param.num_input + 1; i++ ){
 		for( int j = 0; j < param.num_hidden; j++ ){
-			w1[i][j] -= param.epsilon * x[i] * h_back[j];
+			w1[i][j] -= param.learning_coefficient * x[i] * h_back[j];
 		}
 	}
 	for( int i = 0; i < param.num_hidden + 1; i++ ){
 		for( int j = 0; j < param.num_output; j++ ){
-			w2[i][j] -= param.epsilon * h[i] * y_back[j];
+			w2[i][j] -= param.learning_coefficient * h[i] * y_back[j];
 		}
 	}
 }

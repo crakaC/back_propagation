@@ -7,7 +7,7 @@ SRCS:=$(wildcard $(SRC_DIR)/*.cpp)
 OBJS:=$(SRCS:.cpp=.o)
 TARGET = backpropagation
 
-.PHONY: all clean
+.PHONY: all clean dbg
 
 all: $(BUILD_DIR) $(patsubst %,$(BUILD_DIR)/%,$(TARGET))
 
@@ -19,6 +19,9 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
 
 $(BUILD_DIR)/$(TARGET): $(patsubst $(SRC_DIR)/%,$(BUILD_DIR)/%,$(OBJS))
 	$(CC) $(CFLAGS) -o $@ $^
+
+gdb: $(patsubst $(SRC_DIR)/%,$(BUILD_DIR)/%,$(OBJS))
+	$(CC) $(CFLAGS) -g -O0 -o a.out $^
 
 clean:
 	$(RM) -r $(BUILD_DIR)

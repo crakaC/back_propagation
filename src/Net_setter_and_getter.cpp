@@ -17,7 +17,7 @@ void Net::setSigmoidGain( double gain )
 }
 void Net::setLearningCoefficient( double eps )
 {
-	param.epsilon = eps;
+	param.learning_coefficient = eps;
 }
 
 void Net::setThresholdError( double err )
@@ -46,7 +46,7 @@ double Net::getSigmoidGain()
 }
 double Net::getLearningCoefficient()
 {
-	return param.epsilon;
+	return param.learning_coefficient;
 }
 
 double Net::getThresholdError()

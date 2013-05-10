@@ -1,6 +1,7 @@
 //Back Propagation
 
 #include<iostream>
+#include<cstdio>
 #include<string>
 #include"mylib.hpp"
 #include"Net.hpp"
@@ -26,7 +27,20 @@ int main()
 			break;
 		case 2:
 			//学習
-			net.learnBatch();
+			//system("cls");
+			printf("1.逐次更新\n2.一括更新\n0.戻る\n");
+			key = inputByKb< int >( 0, 2 );
+			switch( key ){
+			case 1:
+				net.learnOnline();
+				break;
+			case 2:
+				net.learnBatch();
+				break;
+			default:
+				key = -1;
+				break;
+			}
 			break;
 		case 3:
 			//試してみる

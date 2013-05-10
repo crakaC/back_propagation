@@ -49,7 +49,7 @@ private:
 
 	std::vector< double >x, h, y;
 	std::vector< double >h_back, y_back;
-	std::vector< std::vector< double > > w1_partials, w2_partials;
+	std::vector< std::vector< double > > w1_partials, w2_partials, w1_inertia_term, w2_inertia_term;
 	std::vector< std::vector< double > > w1, w2;
 
 	Params param;//各種パラメータ
