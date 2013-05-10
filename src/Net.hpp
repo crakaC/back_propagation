@@ -47,6 +47,7 @@ private:
 
 	std::vector< double >x, h, y;
 	std::vector< double >h_back, y_back;
+	std::vector< std::vector< double > > xs, hs, ys;
 	std::vector< std::vector< double > > h_backs, y_backs;
 	std::map< Pair, double > w1, w2;
 

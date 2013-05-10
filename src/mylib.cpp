@@ -50,8 +50,8 @@ void create_training_data( Net* net )
 			printf("[%d/%d]output%d\n", i + 1, sample_num, j + 1 );
 			p[j] = input_key< double >( 0, 1 );
 		}
-		for(int j = 0; j < input_num; j++){
-			if( j < input_num - 1 ){
+		for(int j = 0; j < output_num; j++){
+			if( j < output_num - 1 ){
 				ofs << p[j] <<' ';
 			}
 			else{

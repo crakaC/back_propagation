@@ -77,14 +77,19 @@ double Net::d_rand(){
 //各素子を初期化
 void Net::init_node()
 {
+	//学習用
 	x.assign( param.num_input + 1, 0.0 );
 	h.assign( param.num_hidden + 1, 0.0 );
 	y.assign( param.num_output, 0.0 );
 	h_back.assign( param.num_hidden, 0.0 );
 	y_back.assign( param.num_output, 0.0 );
 
-	h_backs.assign( param.num_hidden, std::vector< double >() );
-	y_backs.assign( param.num_output, std::vector< double >() );
+	//batch leaning
+	xs.assign( param.num_input + 1, std::vector< double >( param.num_sample ) );
+	hs.assign( param.num_hidden + 1, std::vector< double >( param.num_sample ) );
+	ys.assign( param.num_output, std::vector< double >( param.num_sample ) );
+	h_backs.assign( param.num_hidden, std::vector< double >( param.num_sample ) );
+	y_backs.assign( param.num_output, std::vector< double >( param.num_sample ) );
 
 	for( int i = 0; i < param.num_hidden; i++ ){
 		h_backs[i].assign( param.num_sample, 0.0);
@@ -205,9 +210,7 @@ void Net::learn()
 		for( isample = 0 ; isample < param.num_sample; isample++ ){
 			//順方向の動作
 			//入力値を訓練データからxにつっこむ
-			for( int i = 0; i < param.num_input; i++ ){
-				x[i] = target[isample].input[i];
-			}
+			x = target[isample].input;
 			x[param.num_input] = 1.0; //閾値
 
 			//入力から出力の値を計算
@@ -253,9 +256,7 @@ void Net::learn_online()
 		for( int isample = 0; isample < param.num_sample; isample++ ){
 			//順方向の動作
 			//入力値を訓練データからxにつっこむ
-			for( int i = 0; i < param.num_input; i++ ){
-				x[i] = target[isample].input[i];
-			}
+			x = target[isample].input;
 			x[param.num_input] = 1.0; //閾値
 
 			//入力から出力の値を計算
