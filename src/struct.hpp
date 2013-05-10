@@ -13,6 +13,7 @@ struct TrainingData{
 		input = std::vector< double >(i);
 		output = std::vector< double >(o);
 	}
+	TrainingData(){}
 };
 
 //パラメータ
@@ -24,7 +25,5 @@ struct Params{
 	bool is_trained, is_empty;//学習済みか、訓練データは存在するか。
 	Params();
 };
-
-typedef std::pair< int,int > Pair;
 
 #endif

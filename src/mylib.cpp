@@ -6,7 +6,7 @@
 #include"mylib.hpp"
 
 //訓練データを作成する
-void create_training_data( Net* net )
+void createTrainingData( Net* net )
 {
 	using namespace std;
 	string filename;
@@ -24,11 +24,11 @@ void create_training_data( Net* net )
 
 	//訓練データ数、入力数、出力数を入力
 	cout << "sample number" << flush;
-	sample_num = input_key< int >( 1, INT_MAX - 1 );
+	sample_num = inputByKb< int >( 1, INT_MAX - 1 );
 	cout << "input number " << flush;
-	input_num = input_key< int >( 1, INT_MAX - 1 );
+	input_num = inputByKb< int >( 1, INT_MAX - 1 );
 	cout << "output number " << flush;
-	output_num = input_key< int >( 1, INT_MAX - 1 );
+	output_num = inputByKb< int >( 1, INT_MAX - 1 );
 
 	//流しこむ
 	ofs << sample_num << ' ' << input_num << ' ' << output_num << endl;
@@ -38,7 +38,7 @@ void create_training_data( Net* net )
 		double* p = new double[ input_num  ];
 		for(int j = 0; j < input_num; j++){
 			printf("[%d/%d]input%d\n", i + 1, sample_num, j + 1 );
-			p[j] = input_key< double >( -1, 1 );
+			p[j] = inputByKb< double >( -1, 1 );
 		}
 		for(int j = 0; j < input_num; j++){
 			ofs << p[j] <<' ';
@@ -48,7 +48,7 @@ void create_training_data( Net* net )
 		p = new double[ output_num ];
 		for(int j = 0; j < output_num; j++){
 			printf("[%d/%d]output%d\n", i + 1, sample_num, j + 1 );
-			p[j] = input_key< double >( 0, 1 );
+			p[j] = inputByKb< double >( 0, 1 );
 		}
 		for(int j = 0; j < output_num; j++){
 			if( j < output_num - 1 ){
@@ -64,31 +64,31 @@ void create_training_data( Net* net )
 	printf( "データを作成しました(%s)\n"
 			"読み込みますか？", filename.c_str() );
 
-	if( y_or_n() == 'y'){
-		net->set_training_data( filename );
+	if( inputYorN() == 'y'){
+		net->setTrainingData( filename );
 	}
 
 }
 
 //入力データから実行
-void test_bp( Net* net ){
+void testBackPropagation( Net* net ){
 	char key = -1;
 	do{
-		if( !execute( net )){
+		if( !executeBackPropagation( net )){
 			return;
 		}
 		printf( "もう一度試しますか？" );
-		key = y_or_n();
+		key = inputYorN();
 	}while( key == 'y' );
 
 }
 
 //キーボードからデータを入力して実行
-bool execute( Net* net )
+bool executeBackPropagation( Net* net )
 {
-	int num_input = net->get_input_num();
+	int num_input = net->getInputNum();
 
-	if( !( net->is_trained() ) ){
+	if( !( net->isTrained() ) ){
 		printf( "先に訓練データを学習してください\n" );
 		return false;
 	}
@@ -99,7 +99,7 @@ bool execute( Net* net )
 	for( int i = 0; i < num_input; i++ ){
 		double value;
 		printf( "[%d/%d]\n", i + 1, num_input );
-		value = input_key< double >( 0, 1 );
+		value = inputByKb< double >( 0, 1 );
 		input.push_back( value );
 	}
 	input.push_back( 1.0 ); //閾値
@@ -117,7 +117,7 @@ bool execute( Net* net )
 	return true;
 }
 
-char y_or_n()
+char inputYorN()
 {
 	using std::cin;
 	char c;
@@ -133,7 +133,7 @@ char y_or_n()
 	return c;
 }
 //コマンドライン用メッセージその１
-std::vector< std::string > gen_msg()
+std::vector< std::string > genMsg()
 {
 	std::vector< std::string > msg;
 	msg.push_back("訓練データ入力");
@@ -147,7 +147,7 @@ std::vector< std::string > gen_msg()
 }
 
 //コマンドライン用メッセージその２
-std::vector< std::string > gen_msg2()
+std::vector< std::string > genMsg2()
 {
 	std::vector< std::string > msg;
 	msg.push_back("一括パラメータ調整");
@@ -162,7 +162,7 @@ std::vector< std::string > gen_msg2()
 }
 
 //コマンドライン用メッセージを表示
-void show_msg(const std::vector< std::string > msg)
+void showMsg(const std::vector< std::string > msg)
 {
 	int i;
 	for( i = 0; i < (int)msg.size() - 1; i++ ){
@@ -172,46 +172,46 @@ void show_msg(const std::vector< std::string > msg)
 }
 
 //学習回数を設定
-void set_learn_num( Net* net )
+void setLearnNum( Net* net )
 {
-	printf( "学習回数(現在%d) ", net->get_learn_num() );
-	net->set_learn_num( input_key<int>( 1, INT_MAX - 1 ) );
+	printf( "学習回数(現在%d) ", net->getLearnNum() );
+	net->setLearnNum( inputByKb<int>( 1, INT_MAX - 1 ) );
 }
 
 //パラメータ設定
-void set_all_params( Net* net )
+void setAllParams( Net* net )
 {
-	set_hidden_nodes_num( net );
-	set_learn_num( net );
-	set_threshold_error( net );
-	set_s_gain( net );
-	set_epsilon( net );
+	setHiddenNodesNum( net );
+	setLearnNum( net );
+	setThresholdError( net );
+	setSigmoidGain( net );
+	setLearningCoefficient( net );
 }
 
 //中間層素子数設定
-void set_hidden_nodes_num( Net* net )
+void setHiddenNodesNum( Net* net )
 {
-	printf( "中間層素子数(現在%d) ", net->get_hidden_nodes_num() );
-	net->set_hidden_nodes_num( input_key<int>( 1, 100 ) );
+	printf( "中間層素子数(現在%d) ", net->getHiddenNodesNum() );
+	net->setHiddenNodesNum( inputByKb<int>( 1, 100 ) );
 }
 
 //シグモイド関数ゲインの設定
-void set_s_gain( Net* net )
+void setSigmoidGain( Net* net )
 {
-	printf( "シグモイド関数ゲイン(現在%G) ", net->get_s_gain() );
-	net->set_s_gain( input_key<double>( -10.0, 10.0 ) );
+	printf( "シグモイド関数ゲイン(現在%G) ", net->getSigmoidGain() );
+	net->setSigmoidGain( inputByKb<double>( -10.0, 10.0 ) );
 }
 
 //学習重みの設定
-void set_epsilon( Net* net )
+void setLearningCoefficient( Net* net )
 {
-	printf( "学習重みε(現在%G) ", net->get_epsilon() );
-	net->set_epsilon( input_key<double>( 0, 10.0 ) );
+	printf( "学習重みε(現在%G) ", net->getLearningCoefficient() );
+	net->setLearningCoefficient( inputByKb<double>( 0, 10.0 ) );
 }
 
 //許容誤差の設定
-void set_threshold_error( Net* net )
+void setThresholdError( Net* net )
 {
-	printf( "許容誤差(現在%G) ", net->get_threshold_error() );
-	net->set_threshold_error( input_key<double>( 1e-60, 1 ) );
+	printf( "許容誤差(現在%G) ", net->getThresholdError() );
+	net->setThresholdError( inputByKb<double>( 1e-60, 1 ) );
 }

@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-Wall -O3
+CFLAGS=-Wall -O0
 .SUFFIXES = .cpp
 SRC_DIR = src
 BUILD_DIR = bin
@@ -23,7 +23,7 @@ $(BUILD_DIR)/$(TARGET): $(patsubst $(SRC_DIR)/%,$(BUILD_DIR)/%,$(OBJS))
 clean:
 	$(RM) -r $(BUILD_DIR)
 
-mylib.o:mylib.hpp struct.hpp Net.hpp
-Net.o:Net.hpp struct.hpp
-Net_setter_and_getter.o:Net.hpp struct.hpp
-struct.o:struct.hpp
+$(BUILD_DIR)/mylib.o: $(patsubst %,$(SRC_DIR)/%, mylib.hpp struct.hpp Net.hpp )
+$(BUILD_DIR)/Net.o: $(patsubst %,$(SRC_DIR)/%,Net.hpp struct.hpp)
+$(BUILD_DIR)/Net_setter_and_getter.o: $(patsubst %,$(SRC_DIR)/%,Net.hpp struct.hpp)
+$(BUILD_DIR)/struct.o: $(patsubst %,$(SRC_DIR)/%,struct.hpp)

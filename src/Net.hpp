@@ -5,51 +5,52 @@
 #include<map>
 #include"struct.hpp"
 
+
 class Net{
 public:
 	Net();
 	std::vector< double > output( const std::vector< double >& input );
-	void set_training_data( const std::string filename );
-	void learn();
-	void learn_online();
-	void execute();
+	void setTrainingData( const std::string filename );
+	void learnBatch();
+	void learnOnline();
 
 	//setter & getter
-	int get_input_num();
+	int getInputNum();
 
-	void set_hidden_nodes_num( int n );
-	int  get_hidden_nodes_num();
+	void setHiddenNodesNum( int n );
+	int  getHiddenNodesNum();
 
-	void set_learn_num( int n );
-	int get_learn_num();
+	void setLearnNum( int n );
+	int getLearnNum();
 
-	void set_threshold_error( double err );
-	double get_threshold_error();
+	void setThresholdError( double err );
+	double getThresholdError();
 
-	void set_s_gain( double gain );
-	double get_s_gain();
+	void setSigmoidGain( double gain );
+	double getSigmoidGain();
 
-	void set_epsilon( double eps );
-	double get_epsilon();
+	void setLearningCoefficient( double eps );
+	double getLearningCoefficient();
 
-	bool is_trained();
+	bool isTrained();
 
 private:
-	void init_weight();
-	void init_node();
-	void update_y();
-	void update_y( int isample );
-	void reverse( const TrainingData& target );
-	void fix_weight();
-	double check_error( const TrainingData& target );
+	void initWight();
+	void initNode();
+	void updateNodesState();
+	void reverse( const int iSample );
+	void calcPartial();
+	void resetPartial();
+	void fixWeightByBatch();
+	void fixWeightOnline();
+	double checkError( const TrainingData& target );
 	double sigmoid( double s );
-	double d_rand();//-1~1の乱数
+	double dRand();//-1~1の乱数
 
 	std::vector< double >x, h, y;
 	std::vector< double >h_back, y_back;
-	std::vector< std::vector< double > > xs, hs, ys;
-	std::vector< std::vector< double > > h_backs, y_backs;
-	std::map< Pair, double > w1, w2;
+	std::vector< std::vector< double > > w1_partials, w2_partials;
+	std::vector< std::vector< double > > w1, w2;
 
 	Params param;//各種パラメータ
 	Params param_bk; //学習時の状態を保存する

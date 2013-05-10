@@ -10,51 +10,51 @@ int main()
 	using namespace std;
 
 	//表示テキスト
-	const vector< string > msg = gen_msg(), conf_msg = gen_msg2();
+	const vector< string > msg = genMsg(), conf_msg = genMsg2();
 	Net net = Net();
 	int key = -1; //キー入力
 	string filename;
 	while( key != 0 ){
-		show_msg( msg );
-		key = input_key< int >( 0, (int)msg.size() - 1 );
+		showMsg( msg );
+		key = inputByKb< int >( 0, (int)msg.size() - 1 );
 		switch(key){
 		case 1:
 			//データ入力
 			cout << "input file name > "<<flush;
 			cin >> filename;
-			net.set_training_data( filename );
+			net.setTrainingData( filename );
 			break;
 		case 2:
 			//学習
-			net.learn_online();
+			net.learnBatch();
 			break;
 		case 3:
 			//試してみる
-			test_bp( &net );
+			testBackPropagation( &net );
 			break;
 		case 4:
 			//パラメータの調整
 			while( key != 0 ){
-				show_msg( conf_msg );
-				key = input_key< int >( 0, (int)conf_msg.size() - 1 );
+				showMsg( conf_msg );
+				key = inputByKb< int >( 0, (int)conf_msg.size() - 1 );
 				switch(key){
 				case 1:
-					set_all_params( &net );
+					setAllParams( &net );
 					break;
 				case 2:
-					set_hidden_nodes_num( &net );
+					setHiddenNodesNum( &net );
 					break;
 				case 3:
-					set_learn_num( &net );
+					setLearnNum( &net );
 					break;
 				case 4:
-					set_threshold_error( &net );
+					setThresholdError( &net );
 					break;
 				case 5:
-					set_s_gain( &net );
+					setSigmoidGain( &net );
 					break;
 				case 6:
-					set_epsilon( &net );
+					setLearningCoefficient( &net );
 					break;
 				case 0:
 					cout << "（ ＾ω＾）戻るお。" << endl;
@@ -64,7 +64,7 @@ int main()
 			break;
 		case 5:
 			//訓練データ作成
-			create_training_data( &net );
+			createTrainingData( &net );
 			break;
 		case 0:
 			cout << "（ ＾ω＾）終了するお。" << endl;

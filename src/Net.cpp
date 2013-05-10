@@ -7,7 +7,7 @@
 Net::Net(){
 }
 
-void Net::set_training_data( const std::string filename = "training2.dat" )
+void Net::setTrainingData( const std::string filename = "training2.dat" )
 {
 	using namespace std;
 	ifstream ifs;
@@ -27,9 +27,10 @@ void Net::set_training_data( const std::string filename = "training2.dat" )
 	param.is_empty = false;
 	param.is_trained = false;
 
+	target.resize( param.num_sample );
 	//訓練データをtargetに格納
 	for( int isample = 0; isample < param.num_sample ; isample++ ){
-		target.push_back( TrainingData( param.num_input, param.num_output ) );
+		target[isample] =  TrainingData( param.num_input, param.num_output );
 		for( int i = 0; i < param.num_input; i++ ){
 			ifs >> target[isample].input[i];
 		}
@@ -69,50 +70,44 @@ double Net::sigmoid( const double s ){
 }
 
 //-1から1の範囲の乱数を返す。
-double Net::d_rand(){
+double Net::dRand(){
 	double ret = static_cast<double>( rand() ) / static_cast<double>( RAND_MAX );
 	return ( rand()%2 == 0 ) ? ret : -ret;
 }
 
 //各素子を初期化
-void Net::init_node()
+void Net::initNode()
 {
 	//学習用
-	x.assign( param.num_input + 1, 0.0 );
-	h.assign( param.num_hidden + 1, 0.0 );
-	y.assign( param.num_output, 0.0 );
-	h_back.assign( param.num_hidden, 0.0 );
-	y_back.assign( param.num_output, 0.0 );
+	x.resize( param.num_input + 1 );
+	h.resize( param.num_hidden + 1 );
+	y.resize( param.num_output );
+	h_back.resize( param.num_hidden );
+	y_back.resize( param.num_output );
 
-	//batch leaning
-	xs.assign( param.num_input + 1, std::vector< double >( param.num_sample ) );
-	hs.assign( param.num_hidden + 1, std::vector< double >( param.num_sample ) );
-	ys.assign( param.num_output, std::vector< double >( param.num_sample ) );
-	h_backs.assign( param.num_hidden, std::vector< double >( param.num_sample ) );
-	y_backs.assign( param.num_output, std::vector< double >( param.num_sample ) );
 
-	for( int i = 0; i < param.num_hidden; i++ ){
-		h_backs[i].assign( param.num_sample, 0.0);
-	}
-
-	for( int i = 0; i < param.num_output; i++ ){
-		y_backs[i].assign( param.num_sample, 0.0);
-	}
 	//設定を記憶
 	param_bk = param;
 }
 
 //結線の重みを初期化
-void Net::init_weight(){
+void Net::initWight(){
+
+	w1.resize( param.num_input + 1, std::vector< double > ( param.num_hidden ) );
+	w2.resize( param.num_hidden + 1, std::vector< double > ( param.num_output ) );
+	//batch leaning
+	w1_partials.resize( param.num_input + 1, std::vector< double > ( param.num_hidden ) );
+	w2_partials.resize( param.num_hidden + 1, std::vector< double > ( param.num_output ) );
+
 	srand( time( NULL ) );
 	for( int i = 0; i < param.num_input + 1; i++ ){
 		for( int j = 0; j < param.num_hidden; j++ ){
-			w1[ Pair(i, j) ] = d_rand();
+			w1[i][j] = dRand();
 		}
 	}
 	for( int i = 0; i < param.num_hidden + 1; i++ ){
 		for( int j = 0; j < param.num_output; j++ ){
-			w2[ Pair(i, j) ] = d_rand();
+			w2[i][j] = dRand();
 		}
 	}
 }
@@ -126,7 +121,7 @@ std::vector< double > Net::output( const std::vector< double >& input )
 	for( int j = 0; j < param_bk.num_hidden ; j++ ){
 		double net_input = 0;
 		for( int i = 0; i < param_bk.num_input + 1; i++ ){
-			net_input += w1[ Pair(i, j) ] * input[i];
+			net_input += w1[i][j] * input[i];
 		}
 		h[j] = sigmoid( net_input );
 	}
@@ -135,7 +130,7 @@ std::vector< double > Net::output( const std::vector< double >& input )
 	for( int j = 0; j < param_bk.num_output; j++ ){
 		double net_input = 0;
 		for( int i = 0; i < param_bk.num_hidden + 1; i++ ){
-			net_input += w2[ Pair(i, j) ] * h[i];
+			net_input += w2[i][j] * h[i];
 		}
 		output[j] = sigmoid( net_input );
 	}
@@ -144,14 +139,14 @@ std::vector< double > Net::output( const std::vector< double >& input )
 }
 
 //メンバのxから,yを更新する。
-void Net::update_y()
+void Net::updateNodesState()
 {
 	double net_input;
 	//隠れ素子値の計算
 	for( int j = 0; j < param.num_hidden; j++ ){
 		net_input = 0;
 		for( int i = 0; i < param.num_input + 1; i++ ){
-			net_input += w1[ Pair(i, j) ] * x[i];
+			net_input += w1[i][j] * x[i];
 		}
 		h[j] = sigmoid( net_input );
 	}
@@ -160,44 +155,21 @@ void Net::update_y()
 	for( int j = 0; j < param.num_output; j++ ){
 		net_input = 0;
 		for( int i = 0; i < param.num_hidden + 1; i++ ){
-			net_input += w2[ Pair(i, j) ] * h[i];
+			net_input += w2[i][j] * h[i];
 		}
 		y[j] = sigmoid( net_input );
 	}
 }
 
-//メンバのxから,yを更新する。
-void Net::update_y( int isample )
-{
-	double net_input;
-	//隠れ素子値の計算
-	for( int j = 0; j < param.num_hidden; j++ ){
-		net_input = 0;
-		for( int i = 0; i < param.num_input + 1; i++ ){
-			net_input += w1[ Pair(i, j) ] * x[i];
-		}
-		h[j] = sigmoid( net_input );
-	}
-
-	//出力値の計算
-	for( int j = 0; j < param.num_output; j++ ){
-		net_input = 0;
-		for( int i = 0; i < param.num_hidden + 1; i++ ){
-			net_input += w2[ Pair(i, j) ] * h[i];
-		}
-		y[j] = sigmoid( net_input );
-	}
-}
-
-void Net::learn()
+void Net::learnBatch()
 {
 	if( param.is_empty ){
 		printf( "先に訓練データを入力してください\n" );
 		return;
 	}
 	printf( "gain = %lf, epsilon = %lf, threshold_error = %lf\n", param.s_gain, param.epsilon, param.threshold_error );
-	init_node();
-	init_weight();
+	initNode();
+	initWight();
 
 	//char buf[1024];
 	//std::ofstream ofs("train.log");
@@ -214,7 +186,7 @@ void Net::learn()
 			x[param.num_input] = 1.0; //閾値
 
 			//入力から出力の値を計算
-			update_y( isample );
+			updateNodesState();
 
 			//誤差の評価
 			error = 0;
@@ -222,11 +194,10 @@ void Net::learn()
 				error += pow( ( target[isample].output[j] - y[j] ), 2 );
 			}
 			total_error += error;
+			reverse( isample );
+			calcPartial();
 		}
-		//逆方向の動作
-		reverse( target[isample] );
-		//重みの修正
-		fix_weight();
+		fixWeightByBatch();
 		//誤差が小さくなったらループを抜ける。
 		if( total_error < param.threshold_error ){
 			break;
@@ -236,15 +207,60 @@ void Net::learn()
 	param.is_trained = true;
 }
 
-void Net::learn_online()
+
+void Net::calcPartial()
+{
+	for( int i = 0; i < param.num_input + 1; i++ ){
+		for( int j = 0; j < param.num_hidden; j++ ){
+			w1_partials[i][j] -= x[i] * h_back[j];
+		}
+	}
+	for( int i = 0; i < param.num_hidden + 1; i++ ){
+		for( int j = 0; j < param.num_output; j++ ){
+			w2_partials[i][j] -=  h[i] * y_back[j];
+		}
+	}
+}
+
+void Net::resetPartial()
+{
+	unsigned int size;
+	for( unsigned int i = 0; i < w1_partials.size(); i++ ){
+		size = w1_partials.size();
+		w1_partials[i].assign( size, 0.0 );
+	}
+
+	for( unsigned int i = 0; i < w2_partials.size(); i++ ){
+		size = w2_partials.size();
+		w2_partials[i].assign( size, 0.0 );
+	}
+}
+//結線重みの修正
+void Net::fixWeightByBatch()
+{
+	for( int i = 0; i < param.num_input + 1; i++ ){
+		for( int j = 0; j < param.num_hidden; j++ ){
+			w1[i][j] += param.epsilon * w1_partials[i][j];
+		}
+	}
+	for( int i = 0; i < param.num_hidden + 1; i++ ){
+		for( int j = 0; j < param.num_output; j++ ){
+			w2[i][j] += param.epsilon * w2_partials[i][j];
+		}
+	}
+	resetPartial();
+}
+
+
+void Net::learnOnline()
 {
 	if( param.is_empty ){
 		printf( "先に訓練データを入力してください\n" );
 		return;
 	}
-	printf( "gain = %lf, epsilon = %lf, threshold_error = %lf\n", param.s_gain, param.epsilon, param.threshold_error );
-	init_node();
-	init_weight();
+	printf( "hidden_nodes = %d, gain = %lf, epsilon = %lf, threshold_error = %G\n", param.num_hidden, param.s_gain, param.epsilon, param.threshold_error );
+	initNode();
+	initWight();
 
 	//char buf[1024];
 	//std::ofstream ofs("train.log");
@@ -260,10 +276,10 @@ void Net::learn_online()
 			x[param.num_input] = 1.0; //閾値
 
 			//入力から出力の値を計算
-			update_y();
+			updateNodesState();
 
 			//誤差の評価
-			error = check_error( target[isample] );
+			error = checkError( target[isample] );
 			if( error > max_error ){
 				max_error = error;
 			}
@@ -273,9 +289,9 @@ void Net::learn_online()
 			//ofs << buf;
 
 			//逆方向の動作
-			reverse( target[isample] );
+			reverse( isample );
 			//重みの修正
-			fix_weight();
+			fixWeightOnline();
 		}
 
 		//誤差が小さくなったらループを抜ける。
@@ -289,22 +305,22 @@ void Net::learn_online()
 
 
 //結線重みの修正
-void Net::fix_weight()
+void Net::fixWeightOnline()
 {
 	for( int i = 0; i < param.num_input + 1; i++ ){
 		for( int j = 0; j < param.num_hidden; j++ ){
-			w1[Pair(i, j)] -= param.epsilon * x[i] * h_back[j];
+			w1[i][j] -= param.epsilon * x[i] * h_back[j];
 		}
 	}
 	for( int i = 0; i < param.num_hidden + 1; i++ ){
 		for( int j = 0; j < param.num_output; j++ ){
-			w2[Pair(i, j)] -= param.epsilon * h[i] * y_back[j];
+			w2[i][j] -= param.epsilon * h[i] * y_back[j];
 		}
 	}
 }
 
 //誤差のチェック
-double Net::check_error( const TrainingData& target )
+double Net::checkError( const TrainingData& target )
 {
 	double error = 0;
 	for( int j = 0; j < param.num_output; j++ ){
@@ -315,8 +331,9 @@ double Net::check_error( const TrainingData& target )
 }
 
 //逆方向の動作
-void Net::reverse( const TrainingData& target )
+void Net::reverse( const int isample )
 {
+	TrainingData target = this->target[isample];
 	//出力層素子
 	for( int j = 0; j < param.num_output; j++ ){
 		y_back[j] = (y[j] - target.output[j]) * (1.0 - y[j]) * y[j] * param.s_gain;
@@ -326,7 +343,7 @@ void Net::reverse( const TrainingData& target )
 	for( int i = 0; i < param.num_hidden; i++ ){
 		double net_input = 0;
 		for( int j = 0; j < param.num_output; j++ ){
-			net_input += w2[ Pair(i,j)] * y_back[j];
+			net_input += w2[i][j] * y_back[j];
 		}
 		h_back[i] = net_input * (1.0 - h[i]) * h[i] * param.s_gain;
 	}

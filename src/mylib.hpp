@@ -8,7 +8,7 @@
 #include"Net.hpp"
 
 //キー入力を指定した値の範囲に制限。
-template<class T> T input_key( T min, T max ){
+template<class T> T inputByKb( T min, T max ){
 	using namespace std;
 
 	T value;
@@ -24,30 +24,30 @@ template<class T> T input_key( T min, T max ){
 	return value;
 }
 
-char y_or_n();
+char inputYorN();
 
 //訓練データの作成,読み込み
-void create_training_data( Net* net );
+void createTrainingData( Net* net );
 
 //自分で値を入力して実行
-void test_bp( Net* net );
-bool execute( Net* net );
+void testBackPropagation( Net* net );
+bool executeBackPropagation( Net* net );
 
 //コマンドライン用メッセージ1
-std::vector< std::string > gen_msg();
+std::vector< std::string > genMsg();
 
 //コマンドライン用メッセージ2
-std::vector< std::string > gen_msg2();
+std::vector< std::string > genMsg2();
 
 //コマンドライン用メッセージ表示
-void show_msg(const std::vector< std::string > msg);
+void showMsg(const std::vector< std::string > msg);
 
 //ニューラルネット各種パラメータ設定
-void set_all_params( Net* net );
-void set_hidden_nodes_num( Net* net );
-void set_learn_num( Net* net );
-void set_threshold_error( Net* net );
-void set_s_gain( Net* net );
-void set_epsilon( Net* ney );
+void setAllParams( Net* net );
+void setHiddenNodesNum( Net* net );
+void setLearnNum( Net* net );
+void setThresholdError( Net* net );
+void setSigmoidGain( Net* net );
+void setLearningCoefficient( Net* ney );
 
 #endif
