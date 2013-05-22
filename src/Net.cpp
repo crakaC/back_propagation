@@ -2,7 +2,27 @@
 #include<cstdio>
 #include<cmath>
 #include<fstream>
+#include<iostream>
+
 #include"Net.hpp"
+
+TrainingData::TrainingData(int i, int o){
+	input = std::vector< double >(i);
+	output = std::vector< double >(o);
+}
+
+Params::Params()
+{
+		num_input = num_hidden = num_output = 0;
+		num_learn = 50000;
+		num_hidden = 10;
+		s_gain = 1.0;
+		learning_coefficient = 0.07;
+		interia_coefficient = 0.05;
+		threshold_error = 0.00001;
+		is_empty = true;
+		is_trained = false;
+}
 
 Net::Net(){
 }
@@ -10,8 +30,10 @@ Net::Net(){
 void Net::setTrainingData( const std::string filename = "training2.dat" )
 {
 	using namespace std;
+
 	ifstream ifs;
 	ifs.open( filename.c_str() );
+
 	//ファイルを開けなかったら戻る。
 	if( !ifs.is_open() ){
 		cout << "cannot open " << filename << endl;
@@ -24,13 +46,14 @@ void Net::setTrainingData( const std::string filename = "training2.dat" )
 		cout<< "file format is wrong." <<endl;
 		return;
 	}
+
 	param.is_empty = false;
 	param.is_trained = false;
 
-	target.resize( param.num_sample );
+	//initialize target
+	target.assign( param.num_sample, TrainingData( param.num_input, param.num_output ) );
 	//訓練データをtargetに格納
 	for( int isample = 0; isample < param.num_sample ; isample++ ){
-		target[isample] =  TrainingData( param.num_input, param.num_output );
 		for( int i = 0; i < param.num_input; i++ ){
 			ifs >> target[isample].input[i];
 		}
@@ -93,19 +116,13 @@ void Net::initNode()
 //結線の重みを初期化
 void Net::initWight(){
 
-	w1.clear();
-	w1.resize( param.num_input + 1, std::vector< double > ( param.num_hidden ) );
-	w2.clear();
-	w2.resize( param.num_hidden + 1, std::vector< double > ( param.num_output ) );
+	w1.assign( param.num_input + 1, std::vector< double > ( param.num_hidden ) );
+	w2.assign( param.num_hidden + 1, std::vector< double > ( param.num_output ) );
 
-	w1_partials.clear();
 	w1_partials.assign( param.num_input + 1, std::vector< double > ( param.num_hidden, 0.0 ) );
-	w2_partials.clear();
 	w2_partials.assign( param.num_hidden + 1, std::vector< double > ( param.num_output, 0.0 ) );
 
-	w1_inertia_term.clear();
 	w1_inertia_term.assign( param.num_input + 1, std::vector< double > ( param.num_hidden, 0.0 ) );
-	w2_inertia_term.clear();
 	w2_inertia_term.assign( param.num_hidden + 1, std::vector< double > ( param.num_output, 0.0 ) );
 
 	srand( time( NULL ) );
@@ -184,12 +201,10 @@ void Net::initLearn()
 
 void Net::learnBatch()
 {
-
-	//char buf[1024];//buffer for output log.
 	int ilearn;//iterator for learning count.
 	double max_error = 0;
-
-	//std::ofstream ofs("train_batch.log");
+	char buf[1024];//buffer for output log.
+	std::ofstream ofs("train_batch.log");
 
 	initLearn();//check training data and initialize Nodes and Weight
 
@@ -209,8 +224,8 @@ void Net::learnBatch()
 			for( int j = 0; j < param.num_output; j++ ){
 				max_error = std::max( max_error, pow( ( target[isample].output[j] - y[j] ), 2 ) );
 				//output log
-				//sprintf( buf, "学習回数 = %d, 訓練データNO.%d, 誤差 = %G\n", ilearn, isample+1, pow( ( target[isample].output[j] - y[j] ), 2 ));
-				//ofs << buf;
+				sprintf( buf, "学習回数 = %d, 訓練データNO.%d, 誤差 = %G\n", ilearn, isample+1, pow( ( target[isample].output[j] - y[j] ), 2 ));
+				ofs << buf;
 
 			}
 			reverse( isample );
@@ -225,7 +240,6 @@ void Net::learnBatch()
 	printf( "学習回数:%d, 誤差:%G\n",ilearn, max_error );
 	param.is_trained = true;
 }
-
 
 void Net::calcPartial()
 {
