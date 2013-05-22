@@ -5,7 +5,7 @@
 #include<climits>
 #include<vector>
 #include<string>
-#include"Net.hpp"
+#include"BackPropagation.hpp"
 
 //キー入力を指定した値の範囲に制限。
 template<class T> T inputByKb( T min, T max ){
@@ -27,11 +27,11 @@ template<class T> T inputByKb( T min, T max ){
 char inputYorN();
 
 //訓練データの作成,読み込み
-void createTrainingData( Net* net );
+void createTrainingData( BackPropagation* BackPropagation );
 
 //自分で値を入力して実行
-void testBackPropagation( Net* net );
-bool executeBackPropagation( Net* net );
+void testBackPropagation( BackPropagation* BackPropagation );
+bool executeBackPropagation( BackPropagation* BackPropagation );
 
 //コマンドライン用メッセージ1
 std::vector< std::string > genMsg();
@@ -43,11 +43,11 @@ std::vector< std::string > genMsg2();
 void showMsg(const std::vector< std::string > msg);
 
 //ニューラルネット各種パラメータ設定
-void setAllParams( Net* net );
-void setHiddenNodesNum( Net* net );
-void setLearnNum( Net* net );
-void setThresholdError( Net* net );
-void setSigmoidGain( Net* net );
-void setLearningCoefficient( Net* ney );
+void setAllParams( BackPropagation* BackPropagation );
+void setHiddenNodesNum( BackPropagation* BackPropagation );
+void setLearnNum( BackPropagation* BackPropagation );
+void setThresholdError( BackPropagation* BackPropagation );
+void setSigmoidGain( BackPropagation* BackPropagation );
+void setLearningCoefficient( BackPropagation* ney );
 
 #endif

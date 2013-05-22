@@ -1,60 +1,60 @@
-#ifndef NET_SETTER_AND_GETTER_H_20130507
-#define NET_SETTER_AND_GETTER_H_20130507
-#include"Net.hpp"
+#ifndef BackPropagation_SETTER_AND_GETTER_H_20130507
+#define BackPropagation_SETTER_AND_GETTER_H_20130507
+#include"BackPropagation.hpp"
 
-void Net::setLearnNum( int n )
+void BackPropagation::setLearnNum( int n )
 {
 	param.num_learn = n;
 }
 
-void Net::setHiddenNodesNum( int n )
+void BackPropagation::setHiddenNodesNum( int n )
 {
 	param.num_hidden = n;
 }
-void Net::setSigmoidGain( double gain )
+void BackPropagation::setSigmoidGain( double gain )
 {
 	param.s_gain = gain;
 }
-void Net::setLearningCoefficient( double eps )
+void BackPropagation::setLearningCoefficient( double eps )
 {
 	param.learning_coefficient = eps;
 }
 
-void Net::setThresholdError( double err )
+void BackPropagation::setThresholdError( double err )
 {
 	param.threshold_error = err;
 }
 
-int Net::getLearnNum()
+int BackPropagation::getLearnNum()
 {
 	return param.num_learn;
 }
 
-int Net::getInputNum()
+int BackPropagation::getInputNum()
 {
 	return param.num_input;
 }
 
-int Net::getHiddenNodesNum()
+int BackPropagation::getHiddenNodesNum()
 {
 	return param.num_hidden;
 }
 
-double Net::getSigmoidGain()
+double BackPropagation::getSigmoidGain()
 {
 	return param.s_gain;
 }
-double Net::getLearningCoefficient()
+double BackPropagation::getLearningCoefficient()
 {
 	return param.learning_coefficient;
 }
 
-double Net::getThresholdError()
+double BackPropagation::getThresholdError()
 {
 	return param.threshold_error;
 }
 
-bool Net::isTrained()
+bool BackPropagation::isTrained()
 {
 	return param.is_trained;
 }

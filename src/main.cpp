@@ -4,7 +4,7 @@
 #include<cstdio>
 #include<string>
 #include"mylib.hpp"
-#include"Net.hpp"
+#include"BackPropagation.hpp"
 
 int main()
 {
@@ -12,7 +12,7 @@ int main()
 
 	//表示テキスト
 	const vector< string > msg = genMsg(), conf_msg = genMsg2();
-	Net net = Net();
+	BackPropagation bp = BackPropagation();
 	int key = -1; //キー入力
 	string filename;
 	while( key != 0 ){
@@ -23,7 +23,7 @@ int main()
 			//データ入力
 			cout << "input file name > "<<flush;
 			cin >> filename;
-			net.setTrainingData( filename );
+			bp.setTrainingData( filename );
 			break;
 		case 2:
 			//学習
@@ -32,10 +32,10 @@ int main()
 			key = inputByKb< int >( 0, 2 );
 			switch( key ){
 			case 1:
-				net.learnOnline();
+				bp.learnOnline();
 				break;
 			case 2:
-				net.learnBatch();
+				bp.learnBatch();
 				break;
 			default:
 				key = -1;
@@ -44,7 +44,7 @@ int main()
 			break;
 		case 3:
 			//試してみる
-			testBackPropagation( &net );
+			testBackPropagation( &bp );
 			break;
 		case 4:
 			//パラメータの調整
@@ -53,22 +53,22 @@ int main()
 				key = inputByKb< int >( 0, (int)conf_msg.size() - 1 );
 				switch(key){
 				case 1:
-					setAllParams( &net );
+					setAllParams( &bp );
 					break;
 				case 2:
-					setHiddenNodesNum( &net );
+					setHiddenNodesNum( &bp );
 					break;
 				case 3:
-					setLearnNum( &net );
+					setLearnNum( &bp );
 					break;
 				case 4:
-					setThresholdError( &net );
+					setThresholdError( &bp );
 					break;
 				case 5:
-					setSigmoidGain( &net );
+					setSigmoidGain( &bp );
 					break;
 				case 6:
-					setLearningCoefficient( &net );
+					setLearningCoefficient( &bp );
 					break;
 				case 0:
 					cout << "（ ＾ω＾）戻るお。" << endl;
@@ -78,7 +78,7 @@ int main()
 			break;
 		case 5:
 			//訓練データ作成
-			createTrainingData( &net );
+			createTrainingData( &bp );
 			break;
 		case 0:
 			cout << "（ ＾ω＾）終了するお。" << endl;

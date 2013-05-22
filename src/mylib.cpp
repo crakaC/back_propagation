@@ -6,7 +6,7 @@
 #include"mylib.hpp"
 
 //訓練データを作成する
-void createTrainingData( Net* net )
+void createTrainingData( BackPropagation* bp )
 {
 	using namespace std;
 	string filename;
@@ -65,16 +65,16 @@ void createTrainingData( Net* net )
 			"読み込みますか？", filename.c_str() );
 
 	if( inputYorN() == 'y'){
-		net->setTrainingData( filename );
+		bp->setTrainingData( filename );
 	}
 
 }
 
 //入力データから実行
-void testBackPropagation( Net* net ){
+void testBackPropagation( BackPropagation* bp ){
 	char key = -1;
 	do{
-		if( !executeBackPropagation( net )){
+		if( !executeBackPropagation( bp )){
 			return;
 		}
 		printf( "もう一度試しますか？" );
@@ -84,11 +84,11 @@ void testBackPropagation( Net* net ){
 }
 
 //キーボードからデータを入力して実行
-bool executeBackPropagation( Net* net )
+bool executeBackPropagation( BackPropagation* bp )
 {
-	int num_input = net->getInputNum();
+	int num_input = bp->getInputNum();
 
-	if( !( net->isTrained() ) ){
+	if( !( bp->isTrained() ) ){
 		printf( "先に訓練データを学習してください\n" );
 		return false;
 	}
@@ -105,7 +105,7 @@ bool executeBackPropagation( Net* net )
 	input.push_back( 1.0 ); //閾値
 
 	//出力を求める。
-	output = net->output( input );
+	output = bp->output( input );
 
 	//表示
 	printf( "-------出力-------\n" );
@@ -172,46 +172,46 @@ void showMsg(const std::vector< std::string > msg)
 }
 
 //学習回数を設定
-void setLearnNum( Net* net )
+void setLearnNum( BackPropagation* bp )
 {
-	printf( "学習回数(現在%d) ", net->getLearnNum() );
-	net->setLearnNum( inputByKb<int>( 1, INT_MAX - 1 ) );
+	printf( "学習回数(現在%d) ", bp->getLearnNum() );
+	bp->setLearnNum( inputByKb<int>( 1, INT_MAX - 1 ) );
 }
 
 //パラメータ設定
-void setAllParams( Net* net )
+void setAllParams( BackPropagation* bp )
 {
-	setHiddenNodesNum( net );
-	setLearnNum( net );
-	setThresholdError( net );
-	setSigmoidGain( net );
-	setLearningCoefficient( net );
+	setHiddenNodesNum( bp );
+	setLearnNum( bp );
+	setThresholdError( bp );
+	setSigmoidGain( bp );
+	setLearningCoefficient( bp );
 }
 
 //中間層素子数設定
-void setHiddenNodesNum( Net* net )
+void setHiddenNodesNum( BackPropagation* bp )
 {
-	printf( "中間層素子数(現在%d) ", net->getHiddenNodesNum() );
-	net->setHiddenNodesNum( inputByKb<int>( 1, 100 ) );
+	printf( "中間層素子数(現在%d) ", bp->getHiddenNodesNum() );
+	bp->setHiddenNodesNum( inputByKb<int>( 1, 100 ) );
 }
 
 //シグモイド関数ゲインの設定
-void setSigmoidGain( Net* net )
+void setSigmoidGain( BackPropagation* bp )
 {
-	printf( "シグモイド関数ゲイン(現在%G) ", net->getSigmoidGain() );
-	net->setSigmoidGain( inputByKb<double>( -10.0, 10.0 ) );
+	printf( "シグモイド関数ゲイン(現在%G) ", bp->getSigmoidGain() );
+	bp->setSigmoidGain( inputByKb<double>( -10.0, 10.0 ) );
 }
 
 //学習係数の設定
-void setLearningCoefficient( Net* net )
+void setLearningCoefficient( BackPropagation* bp )
 {
-	printf( "学習係数ε(現在%G) ", net->getLearningCoefficient() );
-	net->setLearningCoefficient( inputByKb<double>( 0, 10.0 ) );
+	printf( "学習係数ε(現在%G) ", bp->getLearningCoefficient() );
+	bp->setLearningCoefficient( inputByKb<double>( 0, 10.0 ) );
 }
 
 //許容誤差の設定
-void setThresholdError( Net* net )
+void setThresholdError( BackPropagation* bp )
 {
-	printf( "許容誤差(現在%G) ", net->getThresholdError() );
-	net->setThresholdError( inputByKb<double>( 1e-60, 1 ) );
+	printf( "許容誤差(現在%G) ", bp->getThresholdError() );
+	bp->setThresholdError( inputByKb<double>( 1e-60, 1 ) );
 }

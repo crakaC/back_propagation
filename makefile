@@ -27,6 +27,6 @@ debug: $(patsubst $(SRC_DIR)/%,$(OBJ_DIR)/%,$(OBJS))
 clean:
 	$(RM) -r $(OBJ_DIR) $(TARGET) $(TARGET).out
 
-$(OBJ_DIR)/mylib.o: $(patsubst %,$(SRC_DIR)/%, mylib.hpp Net.hpp )
-$(OBJ_DIR)/Net.o: $(patsubst %,$(SRC_DIR)/%,Net.hpp)
-$(OBJ_DIR)/Net_setter_and_getter.o: $(patsubst %,$(SRC_DIR)/%,Net.hpp)
+$(OBJ_DIR)/mylib.o: $(patsubst %,$(SRC_DIR)/%, mylib.hpp BackPropagation.hpp )
+$(OBJ_DIR)/BackPropagation.o: $(patsubst %,$(SRC_DIR)/%,BackPropagation.hpp)
+$(OBJ_DIR)/BackPropagation_setter_and_getter.o: $(patsubst %,$(SRC_DIR)/%,BackPropagation.hpp)

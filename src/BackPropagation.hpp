@@ -1,5 +1,5 @@
-#ifndef NET_H_20130504
-#define NET_H_20130504
+#ifndef BackPropagation_H_20130504
+#define BackPropagation_H_20130504
 
 #include<vector>
 #include<map>
@@ -7,7 +7,6 @@
 
 //訓練データ
 struct TrainingData{
-	static const int hoge = 100;
 	std::vector< double > input;
 	std::vector< double > output;
 	TrainingData(int i, int o);
@@ -25,9 +24,9 @@ struct Params{
 	Params();
 };
 
-class Net{
+class BackPropagation{
 public:
-	Net();
+	BackPropagation();
 	std::vector< double > output( const std::vector< double >& input );
 	void setTrainingData( const std::string filename );
 	void learnBatch();
@@ -52,13 +51,12 @@ public:
 	double getLearningCoefficient();
 
 	bool isTrained();
-
 private:
 	void initWight();
 	void initNode();
 	void initLearn();
-	void updateNodesState();
-	void reverse( const int iSample );
+	void updateNodesStateForward();
+	void updateNodesStateBackword( const int iSample );
 	void calcPartial();
 	void resetPartial();
 	void optimizeWeightByBatch();
@@ -67,7 +65,7 @@ private:
 	double sigmoid( double s );
 	double dRand();//-1~1の乱数
 
-	std::vector< double >x, h, y;
+	std::vector< double >input_nodes, hidden_nodes, output_nodes;
 	std::vector< double >h_back, y_back;
 	std::vector< std::vector< double > > w1_partials, w2_partials, w1_inertia_term, w2_inertia_term;
 	std::vector< std::vector< double > > w1, w2;
