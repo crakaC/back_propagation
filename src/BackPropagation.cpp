@@ -406,7 +406,7 @@ void BackPropagation::optimizeWeightOnline()
 		for( int i = 0, size = (int)hidden_nodes[l].size(); i < size; i++ ){
 			for( int j = 0, size2 = (int)hidden_nodes[l + 1].size() - 1; j < size2; j++){
 				hidden_nodes[l][i].weight_to[ &hidden_nodes[l + 1][j] ] -= param.learning_coefficient * hidden_nodes[l][i].value * hidden_nodes[l + 1][j].back_value;
-				hidden_nodes[l + 1][j].weight_from[ &input_nodes[i] ] = hidden_nodes[l][i].weight_to[ &hidden_nodes[l + 1][j] ];
+				hidden_nodes[l + 1][j].weight_from[ &hidden_nodes[l][i] ] = hidden_nodes[l][i].weight_to[ &hidden_nodes[l + 1][j] ];
 			}
 		}
 	}
