@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-Wall -O3
+CFLAGS=-Wall -O3 -std=gnu++11
 DEBUG_FLAGS=-Wall -O0 -g
 .SUFFIXES = .cpp
 SRC_DIR = src

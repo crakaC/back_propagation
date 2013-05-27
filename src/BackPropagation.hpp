@@ -2,9 +2,8 @@
 #define BackPropagation_H_20130504
 
 #include<vector>
-#include<map>
+#include<unordered_map>
 #include<string>
-
 //訓練データ
 struct TrainingData{
 	std::vector< double > input;
@@ -22,6 +21,13 @@ struct Params{
 	double threshold_error;//許容誤差
 	bool is_trained, is_empty;//学習済みか、訓練データは存在するか。
 	Params();
+};
+
+class Node{
+	std::unordered_map< Node*, double > from;
+	std::unordered_map< Node*, double > to;
+	double value;
+	double back_value;
 };
 
 class BackPropagation{
