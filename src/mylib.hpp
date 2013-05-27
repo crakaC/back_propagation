@@ -45,6 +45,7 @@ void showMsg(const std::vector< std::string > msg);
 //ニューラルネット各種パラメータ設定
 void setAllParams( BackPropagation* BackPropagation );
 void setHiddenNodesNum( BackPropagation* BackPropagation );
+void setHiddenLayerNum( BackPropagation* BackPropagation );
 void setLearnNum( BackPropagation* BackPropagation );
 void setThresholdError( BackPropagation* BackPropagation );
 void setSigmoidGain( BackPropagation* BackPropagation );

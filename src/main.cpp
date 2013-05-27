@@ -13,6 +13,7 @@ int main()
 	//表示テキスト
 	const vector< string > msg = genMsg(), conf_msg = genMsg2();
 	BackPropagation bp = BackPropagation();
+	bp.setTrainingData("xor.dat");
 	int key = -1; //キー入力
 	string filename;
 	while( key != 0 ){
@@ -56,18 +57,21 @@ int main()
 					setAllParams( &bp );
 					break;
 				case 2:
-					setHiddenNodesNum( &bp );
+					setHiddenLayerNum( &bp );
 					break;
 				case 3:
-					setLearnNum( &bp );
+					setHiddenNodesNum( &bp );
 					break;
 				case 4:
-					setThresholdError( &bp );
+					setLearnNum( &bp );
 					break;
 				case 5:
-					setSigmoidGain( &bp );
+					setThresholdError( &bp );
 					break;
 				case 6:
+					setSigmoidGain( &bp );
+					break;
+				case 7:
 					setLearningCoefficient( &bp );
 					break;
 				case 0:

@@ -11,9 +11,14 @@ void BackPropagation::setHiddenNodesNum( int n )
 {
 	param.num_hidden = n;
 }
+
+void BackPropagation::setHiddenLayerNum( int n )
+{
+	param.num_hidden_layer = n;
+}
 void BackPropagation::setSigmoidGain( double gain )
 {
-	param.s_gain = gain;
+	param.sigmoid_gain = gain;
 }
 void BackPropagation::setLearningCoefficient( double eps )
 {
@@ -40,9 +45,13 @@ int BackPropagation::getHiddenNodesNum()
 	return param.num_hidden;
 }
 
+int BackPropagation::getHiddenLayerNum()
+{
+	return param.num_hidden_layer;
+}
 double BackPropagation::getSigmoidGain()
 {
-	return param.s_gain;
+	return param.sigmoid_gain;
 }
 double BackPropagation::getLearningCoefficient()
 {

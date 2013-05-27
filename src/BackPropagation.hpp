@@ -16,18 +16,25 @@ struct TrainingData{
 struct Params{
 	int num_learn, num_sample;//学習打ち切り回数、訓練データ数
 	int num_input, num_hidden, num_output;//入力素子数、隠れ層素子数、出力素子数
-	double s_gain, learning_coefficient;//シグモイド関数ゲイン、学習係数
+	int num_hidden_layer;
+	double sigmoid_gain, learning_coefficient;//シグモイド関数ゲイン、学習係数
 	double interia_coefficient;
 	double threshold_error;//許容誤差
 	bool is_trained, is_empty;//学習済みか、訓練データは存在するか。
 	Params();
 };
 
-class Node{
-	std::unordered_map< Node*, double > from;
-	std::unordered_map< Node*, double > to;
+struct Node{
+	std::unordered_map< Node*, double > weight_from;
+	std::unordered_map< Node*, double > weight_to;
 	double value;
 	double back_value;
+	void updateStateForward( const double gain );
+	void updateStateBackword( const double gain );
+	double sigmoid( const double inputs, const double gain );
+	double dRand();//-1~1の乱数
+	Node();
+
 };
 
 class BackPropagation{
@@ -44,6 +51,9 @@ public:
 	void setHiddenNodesNum( int n );
 	int  getHiddenNodesNum();
 
+	void setHiddenLayerNum( int n );
+	int getHiddenLayerNum( void );	
+
 	void setLearnNum( int n );
 	int getLearnNum();
 
@@ -58,9 +68,7 @@ public:
 
 	bool isTrained();
 private:
-	void initWight();
-	void initNode();
-	void initLearn();
+	void initialize();
 	void updateNodesStateForward();
 	void updateNodesStateBackword( const int iSample );
 	void calcPartial();
@@ -68,14 +76,11 @@ private:
 	void optimizeWeightByBatch();
 	void optimizeWeightOnline();
 	double checkError( const TrainingData& target );
-	double sigmoid( double s );
-	double dRand();//-1~1の乱数
+	double dRand();
 
-	std::vector< double >input_nodes, hidden_nodes, output_nodes;
-	std::vector< double >h_back, y_back;
-	std::vector< std::vector< double > > w1_partials, w2_partials, w1_inertia_term, w2_inertia_term;
-	std::vector< std::vector< double > > w1, w2;
-
+	std::vector< Node >input_nodes,  output_nodes;
+	std::vector< std::vector< Node > > hidden_nodes; 
+	Node dummy_node; //閾値用
 	Params param;//各種パラメータ
 	Params param_bk; //学習時の状態を保存する
 

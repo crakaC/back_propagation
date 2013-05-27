@@ -151,6 +151,7 @@ std::vector< std::string > genMsg2()
 {
 	std::vector< std::string > msg;
 	msg.push_back("一括パラメータ調整");
+	msg.push_back("中間層数設定");
 	msg.push_back("中間層素子数設定");
 	msg.push_back("学習回数設定");
 	msg.push_back("許容誤差設定");
@@ -181,6 +182,7 @@ void setLearnNum( BackPropagation* bp )
 //パラメータ設定
 void setAllParams( BackPropagation* bp )
 {
+	setHiddenLayerNum( bp );
 	setHiddenNodesNum( bp );
 	setLearnNum( bp );
 	setThresholdError( bp );
@@ -194,6 +196,14 @@ void setHiddenNodesNum( BackPropagation* bp )
 	printf( "中間層素子数(現在%d) ", bp->getHiddenNodesNum() );
 	bp->setHiddenNodesNum( inputByKb<int>( 1, 100 ) );
 }
+
+//中間層数設定
+void setHiddenLayerNum( BackPropagation* bp )
+{
+	printf( "中間層数(現在%d) ", bp->getHiddenLayerNum() );
+	bp->setHiddenLayerNum( inputByKb<int>( 1, 100 ) );
+}
+
 
 //シグモイド関数ゲインの設定
 void setSigmoidGain( BackPropagation* bp )
