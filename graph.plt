@@ -1,2 +1,2 @@
-plot "max_error.log" w lp
-replot "max_error_online.log" w lp
+plot "max_error_batch.log" w l
+replot "max_error_online.log" w l

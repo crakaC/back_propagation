@@ -1,0 +1,20 @@
+<map id="setAllParams" name="setAllParams">
+<area shape="rect" id="node3" href="$mylib_8cpp.html#a9d2bfd7ef9e0f0b7c389e048a03a7fa8" title="setHiddenLayerNum" alt="" coords="160,83,301,112"/>
+<area shape="rect" id="node9" href="$mylib_8cpp.html#a8999ff6a849646a9915ad15d1f56051c" title="setHiddenNodesNum" alt="" coords="157,221,304,251"/>
+<area shape="rect" id="node15" href="$mylib_8cpp.html#a0c40b765e6b674922e8a08b7b72c7e59" title="setLearnNum" alt="" coords="181,336,280,365"/>
+<area shape="rect" id="node21" href="$mylib_8cpp.html#a4ea83a9f1fbc7d451a5ecc1baef1e6cf" title="setThresholdError" alt="" coords="168,397,293,427"/>
+<area shape="rect" id="node27" href="$mylib_8cpp.html#ac23a2888413ed7526d39688811e6708f" title="setSigmoidGain" alt="" coords="173,528,288,557"/>
+<area shape="rect" id="node33" href="$mylib_8cpp.html#ab2b162fdb6decd634d09b3af44b9554f" title="setLearningCoefficient" alt="" coords="155,643,307,672"/>
+<area shape="rect" id="node5" href="$class_back_propagation.html#acfc32c6a5b096bd584e4495c5b87686c" title="BackPropagation::getHidden\lLayerNum" alt="" coords="372,5,559,51"/>
+<area shape="rect" id="node7" href="$class_back_propagation.html#ac6d550bd5418fecdc9ff6d84de86e1fe" title="BackPropagation::setHidden\lLayerNum" alt="" coords="372,74,559,121"/>
+<area shape="rect" id="node11" href="$class_back_propagation.html#a982eb336ba5e8fa6f384017e6cf60379" title="BackPropagation::getHidden\lNodesNum" alt="" coords="372,143,559,190"/>
+<area shape="rect" id="node13" href="$class_back_propagation.html#ad305af2e9cbc1f10254542fe415e558c" title="BackPropagation::setHidden\lNodesNum" alt="" coords="372,213,559,259"/>
+<area shape="rect" id="node17" href="$class_back_propagation.html#aa61c027a8d6251b81adf3dc17c212406" title="BackPropagation::getLearnNum" alt="" coords="363,283,568,312"/>
+<area shape="rect" id="node19" href="$class_back_propagation.html#aeac1252c2b8a6f892ecf3814c1410cd6" title="BackPropagation::setLearnNum" alt="" coords="363,336,568,365"/>
+<area shape="rect" id="node23" href="$class_back_propagation.html#a9df58da0dafa1f83b12276b0315164ec" title="BackPropagation::getThreshold\lError" alt="" coords="364,389,567,435"/>
+<area shape="rect" id="node25" href="$class_back_propagation.html#aac1db5a4e065582e30667897dd0b77f6" title="BackPropagation::setThreshold\lError" alt="" coords="364,458,567,505"/>
+<area shape="rect" id="node29" href="$class_back_propagation.html#a0cf379be29322f73b8415b6ad09e0660" title="BackPropagation::getSigmoidGain" alt="" coords="355,528,576,557"/>
+<area shape="rect" id="node31" href="$class_back_propagation.html#ac2f3a01ae2f094f546cde62e39279684" title="BackPropagation::setSigmoidGain" alt="" coords="355,581,576,611"/>
+<area shape="rect" id="node35" href="$class_back_propagation.html#ad5457e18528f6e5b12f6ec6092d41aaf" title="BackPropagation::getLearning\lCoefficient" alt="" coords="368,634,563,681"/>
+<area shape="rect" id="node37" href="$class_back_propagation.html#a87ffab3ae95b6bf4c869635d73546506" title="BackPropagation::setLearning\lCoefficient" alt="" coords="368,703,563,750"/>
+</map>

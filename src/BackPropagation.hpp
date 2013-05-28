@@ -27,7 +27,6 @@ struct Params{
 struct Node{
 	std::unordered_map< Node*, double > weight_from;
 	std::unordered_map< Node*, double > weight_to;
-	std::unordered_map< Node*, double > weight_partial_from;
 	std::unordered_map< Node*, double > weight_partial_to;
 	double value;
 	double back_value;
@@ -36,9 +35,9 @@ struct Node{
 	double sigmoid( const double inputs, const double gain );
 	void updateStateForward( const double gain );
 	void updateStateBackword( const double gain );
-	void optimizeWeightOnline( const Params param );
-	void optimizeWeightBatch( void );
-	void calcPartial( void );
+	void optimizeWeightOnline( const Params& param );
+	void optimizeWeightBatch( const Params& param );
+	void calcPartial( const Params& param );
 	void resetPartial( void );
 };
 
@@ -83,6 +82,7 @@ private:
 	double checkError( const TrainingData& target );
 	double dRand();
 
+	unsigned int seed;
 	std::vector< Node > input_nodes;
 	std::vector< Node > output_nodes;
 	std::vector< std::vector< Node > > hidden_nodes; 
