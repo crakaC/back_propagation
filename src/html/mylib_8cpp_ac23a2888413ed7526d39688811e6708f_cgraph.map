@@ -1,4 +1,0 @@
-<map id="setSigmoidGain" name="setSigmoidGain">
-<area shape="rect" id="node3" href="$class_back_propagation.html#a0cf379be29322f73b8415b6ad09e0660" title="BackPropagation::getSigmoidGain" alt="" coords="168,5,389,35"/>
-<area shape="rect" id="node5" href="$class_back_propagation.html#ac2f3a01ae2f094f546cde62e39279684" title="BackPropagation::setSigmoidGain" alt="" coords="168,59,389,88"/>
-</map>

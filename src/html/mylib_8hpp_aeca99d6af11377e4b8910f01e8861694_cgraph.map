@@ -1,4 +1,0 @@
-<map id="setHiddenLayerNum" name="setHiddenLayerNum">
-<area shape="rect" id="node3" href="$class_back_propagation.html#acfc32c6a5b096bd584e4495c5b87686c" title="BackPropagation::getHidden\lLayerNum" alt="" coords="196,5,383,51"/>
-<area shape="rect" id="node5" href="$class_back_propagation.html#ac6d550bd5418fecdc9ff6d84de86e1fe" title="BackPropagation::setHidden\lLayerNum" alt="" coords="196,74,383,121"/>
-</map>

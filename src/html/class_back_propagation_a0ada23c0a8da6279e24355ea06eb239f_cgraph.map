@@ -1,9 +1,0 @@
-<map id="BackPropagation::learnOnline" name="BackPropagation::learnOnline">
-<area shape="rect" id="node3" href="$class_back_propagation.html#ab17620411a63e250c4e92dc5f6b1a4ba" title="BackPropagation::initialize" alt="" coords="264,5,440,35"/>
-<area shape="rect" id="node7" href="$class_back_propagation.html#af18726d1d714f35ff9c52e22dd080517" title="BackPropagation::updateNodes\lStateForward" alt="" coords="505,106,711,153"/>
-<area shape="rect" id="node9" href="$class_back_propagation.html#aad2c449a7601ccabe4357a4c52de725a" title="BackPropagation::checkError" alt="" coords="256,109,448,139"/>
-<area shape="rect" id="node11" href="$class_back_propagation.html#af9bd0839ba19741eba18271cea184009" title="BackPropagation::output" alt="" coords="269,163,435,192"/>
-<area shape="rect" id="node14" href="$class_back_propagation.html#a2ee6d6db381c567562b1a59c4fdc86d7" title="BackPropagation::updateNodes\lStateBackword" alt="" coords="249,215,455,262"/>
-<area shape="rect" id="node16" href="$class_back_propagation.html#af8f0a6c0da7cff808d3a17b0d930def3" title="BackPropagation::optimize\lWeightOnline" alt="" coords="263,285,441,331"/>
-<area shape="rect" id="node5" href="$class_back_propagation.html#a6cb2b5c183b9114bd05a8f1d298a0fe5" title="BackPropagation::dRand" alt="" coords="525,5,691,35"/>
-</map>
