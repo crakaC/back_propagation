@@ -26,7 +26,10 @@ Params::Params()
 		is_trained = false;
 }
 
-Node::Node(){}
+Node::Node()
+{
+	//TODO init ordered_map and vector size.
+}
 
 void Node::updateStateForward( const double gain )
 {
@@ -44,7 +47,7 @@ void Node::updateStateBackword( const double gain  )
 	//隠れ層素子の逆伝搬時の動作
 	double total_input = 0;
 	for(auto it = weight_to.begin(); it != weight_to.end(); it++){
-		total_input += it->second * it->first->back_value;		
+		total_input += it->second * it->first->back_value;
 	}
 	back_value = total_input * (1.0 - value) * value * gain;
 }
@@ -202,7 +205,7 @@ void BackPropagation::initialize()
 			hidden_nodes[last_layer][i].weight_to[ &output_nodes[j] ] = dRand();
 			output_nodes[j].weight_from[ &hidden_nodes[last_layer][i] ] = dRand();
 			//printf("hidden nodes[%d][%d] <-> output_nodes[%d]\n", last_layer, i, j);
-			hidden_nodes[last_layer][i].weight_partial_to[ &output_nodes[j] ] = dRand();
+			hidden_nodes[last_layer][i].weight_partial_to[ &output_nodes[j] ] = 0.0;
 		}
 	}
 
@@ -249,25 +252,23 @@ void BackPropagation::updateNodesStateForward()
 void BackPropagation::learnBatch()
 {
 	int ilearn, isample;//iterator for learning count, sample number
-	double max_error = 0;
+	double error = 0, max_error = 0;
 	char buf[1024];//buffer for output log.
 	std::ofstream ofs("train_batch.log");
 	std::ofstream max_error_log("max_error_batch.log");
 	clock_t begin, end;
 
-	//max_error_log << "" << std::endl;
-
 	if( param.is_empty ){
 		printf( "先に訓練データを入力してください\n" );
 	} else {
-		initialize();//check training data and initialize Nodes and Weight
+		initialize();
 		sprintf( buf, "hidden_nodes = %d, gain = %lf, learning_coefficient = %lf, threshold_error = %G\n", param.num_hidden, param.sigmoid_gain, param.learning_coefficient, param.threshold_error );
 		ofs << buf;
 
 		/**************/
 		begin = clock();
 		/**************/
-		for( ilearn = 0; ilearn < param.num_learn; ilearn++ ){
+		for( ilearn = 0; ilearn <= param.num_learn; ilearn++ ){
 			max_error = 0;
 			sprintf( buf, "\n学習回数 = %d\n", ilearn );
 			ofs << buf;
@@ -281,10 +282,12 @@ void BackPropagation::learnBatch()
 				updateNodesStateForward();
 
 				//誤差の評価
+				error = checkError( target[isample] );
+				max_error = std::max( error, max_error );
+
+				//output log
 				for( int j = 0; j < param.num_output; j++ ){
-					max_error = std::max( max_error, pow( ( target[isample].output[j] -output_nodes[j].value ), 2 ) );
-					//output log
-					sprintf( buf, "訓練データNO.%d, 誤差 = %G (目標:%f 出力:%f)\n", isample+1, pow( ( target[isample].output[j] -output_nodes[j].value ), 2 ), target[isample].output[j], output_nodes[j].value);
+					sprintf( buf, "Data NO.%d, 誤差 = %G (目標:%f 出力:%f)\n", isample+1, pow( ( target[isample].output[j] -output_nodes[j].value ), 2 ), target[isample].output[j], output_nodes[j].value);
 					ofs << buf;
 
 				}
@@ -310,7 +313,7 @@ void BackPropagation::learnBatch()
 		end = clock();
 		/**************/
 
-		printf( "学習回数:%d, 誤差:%G (%lf sec)\n",ilearn, max_error, (double)(end - begin)/CLOCKS_PER_SEC );
+		printf( "学習回数:%d, 誤差:%G (%lf sec)\n",ilearn - 1, max_error, (double)(end - begin)/CLOCKS_PER_SEC );
 		param.is_trained = true;
 	}
 }
@@ -373,11 +376,13 @@ void BackPropagation::learnOnline()
 
 		begin = clock();
 
-		for( ilearn = 0; ilearn < param.num_learn; ilearn++ ){
+		for( ilearn = 0; ilearn <= param.num_learn; ilearn++ ){
 			max_error = 0;
+			sprintf( buf, "\n学習回数 = %d\n", ilearn );
+			ofs << buf;
 			for( isample = 0; isample < param.num_sample; isample++ ){
-				//順方向の動作
-				//入力値を訓練データからxにつっこむ
+
+				//入力値を訓練データから入力層ノードにつっこむ
 				for( int i = 0; i < param.num_input; i++) {
 					input_nodes[i].value = target[isample].input[i];
 				}
@@ -386,16 +391,12 @@ void BackPropagation::learnOnline()
 
 				//誤差の評価
 				error = checkError( target[isample] );
-				if( error > max_error ){
-					max_error = error;
-				} else {
-					//Not Reachec.
-				}
+				max_error = std::max( error, max_error );
 
 				//logの生成
 				for( int j = 0; j < param.num_output; j++ ){
 					//output log
-					sprintf( buf, "訓練データNO.%d, 誤差 = %G (目標:%f 出力:%f)\n", isample+1, error, target[isample].output[j], output_nodes[j].value);
+					sprintf( buf, "Data NO.%d, 誤差 = %G (目標:%f 出力:%f)\n", isample+1, error, target[isample].output[j], output_nodes[j].value);
 					ofs << buf;
 
 				}
@@ -413,9 +414,8 @@ void BackPropagation::learnOnline()
 				//Not Reached.
 			}
 		}
-
 		end = clock();
-		printf( "学習回数:%d, 誤差:%G (%lf sec)\n",ilearn, max_error, (double)(end - begin)/CLOCKS_PER_SEC );
+		printf( "学習回数:%d, 誤差:%G (%lf sec)\n",ilearn - 1, max_error, (double)(end - begin)/CLOCKS_PER_SEC );
 		param.is_trained = true;
 	}
 }

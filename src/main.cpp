@@ -29,13 +29,17 @@ int main()
 		case 2:
 			//学習
 			//system("cls");
-			printf("1.逐次更新\n2.一括更新\n0.戻る\n");
-			key = inputByKb< int >( 0, 2 );
+			printf("1.逐次更新\n2.一括更新\n3.両方\n0.戻る\n");
+			key = inputByKb< int >( 0, 3 );
 			switch( key ){
 			case 1:
 				bp.learnOnline();
 				break;
 			case 2:
+				bp.learnBatch();
+				break;
+			case 3:
+				bp.learnOnline();
 				bp.learnBatch();
 				break;
 			default:
