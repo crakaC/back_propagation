@@ -1,2 +1,2 @@
-plot "max_error.log" with lines
-replot "max_error_online.log" with lines
+plot "max_error.log" w lp
+replot "max_error_online.log" w lp

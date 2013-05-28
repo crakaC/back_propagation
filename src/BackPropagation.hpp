@@ -27,14 +27,19 @@ struct Params{
 struct Node{
 	std::unordered_map< Node*, double > weight_from;
 	std::unordered_map< Node*, double > weight_to;
+	std::unordered_map< Node*, double > weight_partial_from;
+	std::unordered_map< Node*, double > weight_partial_to;
 	double value;
 	double back_value;
+	Node();
+	double dRand();//-1~1の乱数
+	double sigmoid( const double inputs, const double gain );
 	void updateStateForward( const double gain );
 	void updateStateBackword( const double gain );
-	double sigmoid( const double inputs, const double gain );
-	double dRand();//-1~1の乱数
-	Node();
-
+	void optimizeWeightOnline( const Params param );
+	void optimizeWeightBatch( void );
+	void calcPartial( void );
+	void resetPartial( void );
 };
 
 class BackPropagation{
@@ -78,7 +83,8 @@ private:
 	double checkError( const TrainingData& target );
 	double dRand();
 
-	std::vector< Node >input_nodes,  output_nodes;
+	std::vector< Node > input_nodes;
+	std::vector< Node > output_nodes;
 	std::vector< std::vector< Node > > hidden_nodes; 
 	Node dummy_node; //閾値用
 	Params param;//各種パラメータ

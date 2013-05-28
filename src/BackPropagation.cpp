@@ -20,17 +20,18 @@ Params::Params()
 		sigmoid_gain = 1.0;
 		learning_coefficient = 0.07;
 		interia_coefficient = 0.05;
-		threshold_error = 0.00001;
+		threshold_error = 1E-5;
 		is_empty = true;
 		is_trained = false;
 }
 
-Node::Node(){
-}
+Node::Node(){}
 
 void Node::updateStateForward( const double gain )
 {
 	double total_input = 0;
+
+	// it->first: Node*(connected Node), it->second: double(weight of bound)
 	for(auto it = weight_from.begin(); it != weight_from.end(); it++){
 		total_input += (it->second) * (it->first->value);
 	}
@@ -48,8 +49,28 @@ void Node::updateStateBackword( const double gain  )
 }
 
 //シグモイド関数
-double Node::sigmoid( const double inputs, const double gain ){
+double Node::sigmoid( const double inputs, const double gain )
+{
 	return  1 / ( 1.0 + exp( gain * (-inputs) ) );
+}
+
+void Node::optimizeWeightOnline( Params param )
+{
+	for( auto it = weight_to.begin(); it != weight_to.end(); it++ ) {
+		it->second -= param.learning_coefficient * value * (it->first->back_value);
+		it->first->weight_from[this] = (it->second);
+	}
+}
+void Node::optimizeWeightBatch( void )
+{
+
+}
+void Node::calcPartial( void )
+{
+
+}
+void Node::resetPartial( void )
+{
 }
 
 BackPropagation::BackPropagation(){
@@ -131,45 +152,39 @@ void BackPropagation::setTrainingData( const std::string filename = "training2.d
 void BackPropagation::initialize()
 {
 	int last_layer = param.num_hidden_layer - 1;
-	//init nodes
+	//initialize nodes
 	input_nodes.assign( param.num_input + 1, Node() );
 	hidden_nodes.assign( param.num_hidden_layer, std::vector< Node >( param.num_hidden + 1 ) );
 	output_nodes.assign( param.num_output, Node() );
 
-	//generate graph and init weight
+	//generate graph and initialize weight
+
+	//between input layer and hidden layer
 	for( int i = 0; i < param.num_input + 1; i++ ) {
-		for( int j = 0; j < (int) hidden_nodes[0].size(); j++ ) {
-			//between input layer and hidden layer
+		for( int j = 0, size = (int) hidden_nodes[0].size() - 1; j < size; j++ ) {
 			input_nodes[i].weight_to[ &hidden_nodes[0][j] ] = dRand();
 			hidden_nodes[0][j].weight_from[&input_nodes[i]] = dRand();
-			printf("input node[%d] <-> hidden_nodes[0]%d\r", i, j);
-			if( i == param.num_input){
-				hidden_nodes[0][j].weight_from[&input_nodes[i]] = 1.0;//ノードの閾値
-			}
-		}
-	}
-	//hidden_nodes.size() : num of hidden layers
-	//hidden_nodess[l].size() : num of nodes of layer l.(include threshold)
-	for( int l = 0, size1 = (int) hidden_nodes.size() - 1; l < size1; l++ ) {
-		for( int i = 0, size2 = (int) hidden_nodes[l].size(); i < size2; i++) {
-			for( int j = 0, size3 = (int) hidden_nodes[l+1].size() - 1; j < size3; j++) {
-				hidden_nodes[l][i].weight_to[ &hidden_nodes[l + 1][j] ] = dRand();
-				hidden_nodes[l + 1][j].weight_from[ &hidden_nodes[l][i] ] = dRand();
-				if( i == size2 - 1 ) {
-					hidden_nodes[l + 1][j].weight_from[ &hidden_nodes[l][i] ] = 1.0;
-				}
-			}
+			printf("intput_nodes[%d] <-> hidden nodes[0][%d]\n", i, j);
 		}
 	}
 
+	//hidden_nodes.size() : num of hidden layers
+	//hidden_nodes[layer].size() : num of nodes of the layer.(include threshold node)
+	for( int layer = 0, num_layer = (int) hidden_nodes.size() - 1; layer < num_layer; layer++ ) {
+		for( int i = 0, size_from = (int) hidden_nodes[layer].size(); i < size_from; i++) {
+			for( int j = 0, size_to = (int) hidden_nodes[layer + 1].size() - 1; j < size_to; j++) {
+				hidden_nodes[layer][i].weight_to[ &hidden_nodes[layer + 1][j] ] = dRand();
+				hidden_nodes[layer + 1][j].weight_from[ &hidden_nodes[layer][i] ] = dRand();
+				printf("hidden nodes[%d][%d] <-> hidden_nodes[%d][%d]\n", layer, i, layer + 1, j);
+			}
+		}
+	}
+	//between input layer and hidden layer
 	for( int i = 0, size = (int) hidden_nodes[last_layer].size(); i < size; i++ ) {
 		for( int j = 0; j < param.num_output; j++ ) {
-			//between input layer and hidden layer
 			hidden_nodes[last_layer][i].weight_to[ &output_nodes[j] ] = dRand();
 			output_nodes[j].weight_from[ &hidden_nodes[last_layer][i] ] = dRand();
-			if( i == (int)hidden_nodes[last_layer].size() - 1 ) {
-				output_nodes[j].weight_from[ &hidden_nodes[last_layer][i] ] = 1.0;//ノードの閾値
-			}
+			printf("hidden nodes[%d][%d] <-> output_nodes[%d]\n", last_layer, i, j);
 		}
 	}
 
@@ -272,30 +287,48 @@ void BackPropagation::learnBatch()
 
 void BackPropagation::calcPartial()
 {
-	//double tmp = 0;
-	/*
+	int last_layer = param.num_hidden_layer - 1;
+	//between input layer and hidden layer
 	for( int i = 0; i < param.num_input + 1; i++ ){
-		for( int j = 0; j < param.num_hidden; j++ ){
-			// tmp = w1_partials[i][j];
-			// w1_partials[i][j] += (- param.learning_coefficient *input_nodes[i] * h_back[j]) + param.interia_coefficient * w1_inertia_term[i][j];
-			// w1_inertia_term[i][j] = tmp;
-			 w1_partials[i][j] += (- param.learning_coefficient *input_nodes[i] * h_back[j]);
+		for( int j = 0, size = (int)hidden_nodes[0].size() - 1; j < size; j++ ){
+			input_nodes[i].weight_partial_to[ &hidden_nodes[0][j] ] -= param.learning_coefficient * input_nodes[i].value * hidden_nodes[0][j].back_value;
+			hidden_nodes[0][j].weight_partial_from[ &input_nodes[i] ] = input_nodes[i].weight_partial_to[ &hidden_nodes[0][j] ];
 		}
 	}
-	for( int i = 0; i < param.num_hidden + 1; i++ ){
-		for( int j = 0; j < param.num_output; j++ ){
-			// tmp = w2_partials[i][j];
-			// w2_partials[i][j] += (- param.learning_coefficient *hidden_nodes[i] * y_back[j]) + param.interia_coefficient * w2_inertia_term[i][j];
-			// w2_inertia_term[i][j] = tmp;
-			w2_partials[i][j] += (- param.learning_coefficient *hidden_nodes[i] * y_back[j]);
-		}
-	}
-	*/
 
+	//hidden layer - hidden layer
+	for( int l = 0; l < param.num_hidden_layer - 1; l++ ){
+		for( int i = 0, size = (int)hidden_nodes[l].size(); i < size; i++ ){
+			for( int j = 0, size2 = (int)hidden_nodes[l + 1].size() - 1; j < size2; j++){
+				hidden_nodes[l][i].weight_partial_to[ &hidden_nodes[l + 1][j] ] -= param.learning_coefficient * hidden_nodes[l][i].value * hidden_nodes[l + 1][j].back_value;
+				hidden_nodes[l + 1][j].weight_partial_from[ &hidden_nodes[l][i] ] = hidden_nodes[l][i].weight_partial_to[ &hidden_nodes[l + 1][j] ];
+			}
+		}
+	}
+
+	//hidden layer - output layer
+	for( int i = 0, size = (int)hidden_nodes[last_layer].size(); i < size; i++ ){
+		for( int j = 0; j < param.num_output; j++ ){
+			hidden_nodes[last_layer][i].weight_partial_to[ &output_nodes[j] ] -= param.learning_coefficient * hidden_nodes[last_layer][i].value * output_nodes[j].back_value;
+			output_nodes[j].weight_partial_from[ &hidden_nodes[last_layer][i] ] = hidden_nodes[last_layer][i].weight_partial_to[ &output_nodes[j] ];
+		}
+	}
 }
 
 void BackPropagation::resetPartial()
 {
+	for( auto it = input_nodes.begin(); it != input_nodes.end(); it++ ){
+		it->resetPartial();
+	}
+	for( auto lit = hidden_nodes.begin(); lit!= hidden_nodes.end(); lit++) {
+		for( auto it = lit->begin(); it != lit->end(); it++ ){
+			it->resetPartial();
+		}
+	}
+	for( auto it = output_nodes.begin(); it != output_nodes.end(); it++ ){
+		it->resetPartial();
+	}
+
 	/*
 	unsigned int size;
 	for( unsigned int i = 0; i < w1_partials.size(); i++ ){
@@ -392,30 +425,15 @@ void BackPropagation::learnOnline()
 //結線重みの修正
 void BackPropagation::optimizeWeightOnline()
 {
-	int last_layer = param.num_hidden_layer - 1;
 	//between input layer and hidden layer
 	for( int i = 0; i < param.num_input + 1; i++ ){
-		for( int j = 0, size = (int)hidden_nodes[0].size() - 1; j < size; j++ ){
-			input_nodes[i].weight_to[ &hidden_nodes[0][j] ] -= param.learning_coefficient * input_nodes[i].value * hidden_nodes[0][j].back_value;
-			hidden_nodes[0][j].weight_from[ &input_nodes[i] ] = input_nodes[i].weight_to[ &hidden_nodes[0][j] ];
-		}
+		input_nodes[i].optimizeWeightOnline( param );
 	}
 
 	//hidden layer - hidden layer
-	for( int l = 0; l < param.num_hidden_layer - 1; l++ ){
+	for( int l = 0; l < param.num_hidden_layer; l++ ){
 		for( int i = 0, size = (int)hidden_nodes[l].size(); i < size; i++ ){
-			for( int j = 0, size2 = (int)hidden_nodes[l + 1].size() - 1; j < size2; j++){
-				hidden_nodes[l][i].weight_to[ &hidden_nodes[l + 1][j] ] -= param.learning_coefficient * hidden_nodes[l][i].value * hidden_nodes[l + 1][j].back_value;
-				hidden_nodes[l + 1][j].weight_from[ &hidden_nodes[l][i] ] = hidden_nodes[l][i].weight_to[ &hidden_nodes[l + 1][j] ];
-			}
-		}
-	}
-
-	//hidden layer - output layer
-	for( int i = 0, size = (int)hidden_nodes[last_layer].size(); i < size; i++ ){
-		for( int j = 0; j < param.num_output; j++ ){
-			hidden_nodes[last_layer][i].weight_to[ &output_nodes[j] ] -= param.learning_coefficient * hidden_nodes[last_layer][i].value * output_nodes[j].back_value;
-			output_nodes[j].weight_from[ &hidden_nodes[last_layer][i] ] = hidden_nodes[last_layer][i].weight_to[ &output_nodes[j] ];
+			hidden_nodes[l][i].optimizeWeightOnline( param );
 		}
 	}
 }
