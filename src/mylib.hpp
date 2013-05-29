@@ -27,11 +27,11 @@ template<class T> T inputByKb( T min, T max ){
 char inputYorN();
 
 //訓練データの作成,読み込み
-void createTrainingData( BackPropagation* BackPropagation );
+void createTrainingData( BackPropagation* bp );
 
 //自分で値を入力して実行
-void testBackPropagation( BackPropagation* BackPropagation );
-bool executeBackPropagation( BackPropagation* BackPropagation );
+void testBackPropagation( BackPropagation* bp );
+bool executeBackPropagation( BackPropagation* bp );
 
 //コマンドライン用メッセージ1
 std::vector< std::string > genMsg();
@@ -43,12 +43,12 @@ std::vector< std::string > genMsg2();
 void showMsg(const std::vector< std::string > msg);
 
 //ニューラルネット各種パラメータ設定
-void setAllParams( BackPropagation* BackPropagation );
-void setHiddenNodesNum( BackPropagation* BackPropagation );
-void setHiddenLayerNum( BackPropagation* BackPropagation );
-void setLearnNum( BackPropagation* BackPropagation );
-void setThresholdError( BackPropagation* BackPropagation );
-void setSigmoidGain( BackPropagation* BackPropagation );
-void setLearningCoefficient( BackPropagation* ney );
+void setAllParams( BackPropagation* bp );
+void setHiddenNodesNum( BackPropagation* bp );
+void setHiddenLayerNum( BackPropagation* bp );
+void setLearnNum( BackPropagation* bp );
+void setThresholdError( BackPropagation* bp );
+void setSigmoidGain( BackPropagation* bp );
+void setLearningCoefficient( BackPropagation* bp );
 
 #endif
