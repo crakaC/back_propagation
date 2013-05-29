@@ -24,20 +24,22 @@ struct Params{
 	Params();
 };
 
-struct Node{
+class Node{
+public:
 	std::unordered_map< Node*, double > weight_from;
 	std::unordered_map< Node*, double > weight_to;
 	std::unordered_map< Node*, double > weight_partial_to;
 	double value;
 	double back_value;
 	Node();
-	double dRand();//-1~1の乱数
-	double sigmoid( const double inputs, const double gain );
 	void updateStateForward( const double gain );
 	void updateStateBackword( const double gain );
-	void optimizeWeight( const Params& param );
 	void calcPartial( const Params& param );
+	void optimizeWeight( const Params& param );
 	void resetPartial( void );
+private:
+	double dRand();//-1~1の乱数
+	double sigmoid( const double inputs, const double gain );
 };
 
 class BackPropagation{
@@ -79,7 +81,6 @@ private:
 	double checkError( const TrainingData& target );
 	double dRand();
 
-	unsigned int seed;
 	std::vector< Node > input_nodes;
 	std::vector< Node > output_nodes;
 	std::vector< std::vector< Node > > hidden_nodes; 

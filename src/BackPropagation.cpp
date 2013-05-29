@@ -83,8 +83,6 @@ void Node::resetPartial( void )
 
 BackPropagation::BackPropagation()
 {
-	seed = time(NULL);
-	srand(seed);
 }
 
 //-1から1の範囲の乱数を返す。
