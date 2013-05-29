@@ -35,8 +35,7 @@ struct Node{
 	double sigmoid( const double inputs, const double gain );
 	void updateStateForward( const double gain );
 	void updateStateBackword( const double gain );
-	void optimizeWeightOnline( const Params& param );
-	void optimizeWeightBatch( const Params& param );
+	void optimizeWeight( const Params& param );
 	void calcPartial( const Params& param );
 	void resetPartial( void );
 };
@@ -76,9 +75,7 @@ private:
 	void updateNodesStateForward();
 	void updateNodesStateBackword( const int iSample );
 	void calcPartial();
-	void resetPartial();
-	void optimizeWeightByBatch();
-	void optimizeWeightOnline();
+	void optimizeBondsWeight();
 	double checkError( const TrainingData& target );
 	double dRand();
 

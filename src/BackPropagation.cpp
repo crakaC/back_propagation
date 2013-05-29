@@ -35,7 +35,7 @@ void Node::updateStateForward( const double gain )
 {
 	double total_input = 0;
 
-	// it->first: Node*(connected Node), it->second: double(weight of bound)
+	// it->first: Node*(connected Node), it->second: double(weight of bond)
 	for(auto it = weight_from.begin(); it != weight_from.end(); it++){
 		total_input += (it->second) * (it->first->value);
 	}
@@ -44,7 +44,6 @@ void Node::updateStateForward( const double gain )
 
 void Node::updateStateBackword( const double gain  )
 {
-	//隠れ層素子の逆伝搬時の動作
 	double total_input = 0;
 	for(auto it = weight_to.begin(); it != weight_to.end(); it++){
 		total_input += it->second * it->first->back_value;
@@ -58,20 +57,14 @@ double Node::sigmoid( const double inputs, const double gain )
 	return  1 / ( 1.0 + exp( gain * (-inputs) ) );
 }
 
-void Node::optimizeWeightOnline( const Params& param )
+void Node::optimizeWeight( const Params& param )
 {
-	for( auto it = weight_to.begin(); it != weight_to.end(); it++ ) {
-		it->second -= param.learning_coefficient * value * (it->first->back_value);
-		it->first->weight_from[this] = (it->second);
-	}
-}
-
-void Node::optimizeWeightBatch( const Params& param )
-{
+	// it->first: Node*(connected Node), it->second: double(weight of bond)
 	for ( auto it = weight_to.begin(); it != weight_to.end(); it++) {
 		it->second += weight_partial_to[ it->first ];
 		it->first->weight_from[this] = it->second;
 	}
+	resetPartial();
 }
 
 void Node::calcPartial( const Params& param )
@@ -296,7 +289,7 @@ void BackPropagation::learnBatch()
 				updateNodesStateBackword( isample );
 				calcPartial();
 			}
-			optimizeWeightByBatch();
+			optimizeBondsWeight();
 
 			sprintf( buf, "%G\n", max_error);
 			max_error_log << buf;
@@ -332,30 +325,17 @@ void BackPropagation::calcPartial()
 	}
 }
 
-void BackPropagation::resetPartial()
-{
-	for( int i = 0; i < param.num_input + 1; i++ ){
-		input_nodes[i].resetPartial();
-	}
-	for( int l = 0; l < param.num_hidden_layer; l++ ){
-		for( int i = 0, size = (int)hidden_nodes[l].size(); i < size; i++ ){
-			hidden_nodes[l][i].resetPartial();
-		}
-	}
-}
-
 //結線重みの修正
-void BackPropagation::optimizeWeightByBatch()
+void BackPropagation::optimizeBondsWeight()
 {
 	for( int i = 0; i < param.num_input + 1; i++ ){
-		input_nodes[i].optimizeWeightBatch( param );
+		input_nodes[i].optimizeWeight( param );
 	}
 	for( int l = 0; l < param.num_hidden_layer; l++ ){
 		for( int i = 0, size = (int)hidden_nodes[l].size(); i < size; i++ ){
-			hidden_nodes[l][i].optimizeWeightBatch( param );
+			hidden_nodes[l][i].optimizeWeight( param );
 		}
 	}
-	resetPartial();
 }
 
 //online learning mode
@@ -403,7 +383,8 @@ void BackPropagation::learnOnline()
 				//逆方向の動作
 				updateNodesStateBackword( isample );
 				//重みの修正
-				optimizeWeightOnline();
+				calcPartial();
+				optimizeBondsWeight();
 			}
 			error_log << max_error << std::endl;
 			//printf("%5d, Max error = %G\r", ilearn, max_error);
@@ -417,23 +398,6 @@ void BackPropagation::learnOnline()
 		end = clock();
 		printf( "学習回数:%d, 誤差:%G (%lf sec)\n",ilearn - 1, max_error, (double)(end - begin)/CLOCKS_PER_SEC );
 		param.is_trained = true;
-	}
-}
-
-
-//結線重みの修正
-void BackPropagation::optimizeWeightOnline()
-{
-	//between input layer and hidden layer
-	for( int i = 0; i < param.num_input + 1; i++ ){
-		input_nodes[i].optimizeWeightOnline( param );
-	}
-
-	//hidden layer - hidden layer
-	for( int l = 0; l < param.num_hidden_layer; l++ ){
-		for( int i = 0, size = (int)hidden_nodes[l].size(); i < size; i++ ){
-			hidden_nodes[l][i].optimizeWeightOnline( param );
-		}
 	}
 }
 
