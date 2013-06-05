@@ -4,6 +4,7 @@
 #include<fstream>
 #include<iostream>
 #include<ctime>
+#include<algorithm>
 
 #include"BackPropagation.hpp"
 
@@ -21,74 +22,15 @@ Params::Params()
 		sigmoid_gain = 1.0;
 		learning_coefficient = 0.07;
 		interia_coefficient = 0.05;
-		threshold_error = 1E-5;
+		threshold_error = 0.001;
 		is_empty = true;
 		is_trained = false;
 }
 
-Node::Node()
-{
-	//TODO init ordered_map and vector size.
-}
-
-void Node::updateStateForward( const double gain )
-{
-	double total_input = 0;
-
-	// it->first: Node*(connected Node), it->second: double(weight of bond)
-	for(auto it = weight_from.begin(); it != weight_from.end(); it++){
-		total_input += (it->second) * (it->first->value);
-	}
-	value = sigmoid( total_input, gain );
-}
-
-void Node::updateStateBackword( const double gain  )
-{
-	double total_input = 0;
-	for(auto it = weight_to.begin(); it != weight_to.end(); it++){
-		total_input += it->second * it->first->back_value;
-	}
-	back_value = total_input * (1.0 - value) * value * gain;
-}
-
-//シグモイド関数
-double Node::sigmoid( const double inputs, const double gain )
-{
-	return  1 / ( 1.0 + exp( gain * (-inputs) ) );
-}
-
-void Node::optimizeWeight( const Params& param )
-{
-	// it->first: Node*(connected Node), it->second: double(weight of bond)
-	for ( auto it = weight_to.begin(); it != weight_to.end(); it++) {
-		it->second += weight_partial_to[ it->first ];
-		it->first->weight_from[this] = it->second;
-	}
-	resetPartial();
-}
-
-void Node::calcPartial( const Params& param )
-{
-	for ( auto it = weight_partial_to.begin(); it != weight_partial_to.end(); it++) {
-		it->second -= param.learning_coefficient * value * (it->first->back_value);
-	}
-}
-
-void Node::resetPartial( void )
-{
-	for ( auto it = weight_partial_to.begin(); it != weight_partial_to.end(); it++) {
-		it->second = 0.0;
-	}
-}
-
 BackPropagation::BackPropagation()
 {
-}
-
-//-1から1の範囲の乱数を返す。
-double BackPropagation::dRand(){
-	double ret = static_cast<double>( rand() ) / static_cast<double>( RAND_MAX );
-	return ( rand()%2 == 0 ) ? ret : -ret;
+	bonds_weight = NULL;
+	bonds_weight_variation = NULL;
 }
 
 void BackPropagation::setTrainingData( const std::string filename = "training2.dat" )
@@ -154,91 +96,18 @@ void BackPropagation::setTrainingData( const std::string filename = "training2.d
 	}
 }
 
-
-
-
-//各素子を初期化
-void BackPropagation::initialize()
-{
-	int last_layer = param.num_hidden_layer - 1;
-	//initialize nodes
-	input_nodes.assign( param.num_input + 1, Node() );
-	hidden_nodes.assign( param.num_hidden_layer, std::vector< Node >( param.num_hidden + 1 ) );
-	output_nodes.assign( param.num_output, Node() );
-
-	//generate graph and initialize weight
-
-	//between input layer and hidden layer
-	for( int i = 0; i < param.num_input + 1; i++ ) {
-		for( int j = 0, size = (int) hidden_nodes[0].size() - 1; j < size; j++ ) {
-			input_nodes[i].weight_to[ &hidden_nodes[0][j] ] = dRand();
-			hidden_nodes[0][j].weight_from[&input_nodes[i]] = dRand();
-			//printf("intput_nodes[%d] <-> hidden nodes[0][%d]\n", i, j);
-			input_nodes[i].weight_partial_to[ &hidden_nodes[0][j] ] = 0.0;
-		}
-	}
-
-	//hidden_nodes.size() : num of hidden layers
-	//hidden_nodes[layer].size() : num of nodes of the layer.(include threshold node)
-	for( int layer = 0, num_layer = (int) hidden_nodes.size() - 1; layer < num_layer; layer++ ) {
-		for( int i = 0, size_from = (int) hidden_nodes[layer].size(); i < size_from; i++) {
-			for( int j = 0, size_to = (int) hidden_nodes[layer + 1].size() - 1; j < size_to; j++) {
-				hidden_nodes[layer][i].weight_to[ &hidden_nodes[layer + 1][j] ] = dRand();
-				hidden_nodes[layer + 1][j].weight_from[ &hidden_nodes[layer][i] ] = dRand();
-				//printf("hidden nodes[%d][%d] <-> hidden_nodes[%d][%d]\n", layer, i, layer + 1, j);
-				hidden_nodes[layer][i].weight_partial_to[ &hidden_nodes[layer + 1][j] ] = 0.0;
-			}
-		}
-	}
-	//between input layer and hidden layer
-	for( int i = 0, size = (int) hidden_nodes[last_layer].size(); i < size; i++ ) {
-		for( int j = 0; j < param.num_output; j++ ) {
-			hidden_nodes[last_layer][i].weight_to[ &output_nodes[j] ] = dRand();
-			output_nodes[j].weight_from[ &hidden_nodes[last_layer][i] ] = dRand();
-			//printf("hidden nodes[%d][%d] <-> output_nodes[%d]\n", last_layer, i, j);
-			hidden_nodes[last_layer][i].weight_partial_to[ &output_nodes[j] ] = 0.0;
-		}
-	}
-
-	//設定を記憶
-	param_bk = param;
-	printf( "hidden_layers = %d, hidden_nodes = %d, gain = %lf, learning_coefficient = %lf, threshold_error = %G\n", param.num_hidden_layer, param.num_hidden, param.sigmoid_gain, param.learning_coefficient, param.threshold_error );
-}
-
-
 //与えられた入力データを用いて出力データを返す．
 std::vector< double > BackPropagation::output( const std::vector< double >& input )
 {
 	std::vector< double > output( param_bk.num_output );
 
-	for( int i = 0; i < param_bk.num_input; i++) {
-		input_nodes[i].value = input[i];
-	}
+	input_layer = input;
+	
+	updateStateForward();
 
-	updateNodesStateForward();
-
-	for( int i = 0; i < param_bk.num_output; i++ ){
-		output[i] = output_nodes[i].value;
-	}
-
-	return output;
+	return output_layer;
 }
 
-//メンバのxから,yを更新する。
-void BackPropagation::updateNodesStateForward()
-{
-	//update hidden layer nodes.
-	for( int l = 0; l < param.num_hidden_layer; l++ ) {
-		for( int i = 0; i < param.num_hidden; i++ ) {
-			hidden_nodes[l][i].updateStateForward( param.sigmoid_gain );
-		}
-	}
-
-	//update output layer nodes
-	for( int i = 0; i < param.num_output; i++ ) {
-		output_nodes[i].updateStateForward( param.sigmoid_gain );
-	}
-}
 
 void BackPropagation::learnBatch()
 {
@@ -266,11 +135,9 @@ void BackPropagation::learnBatch()
 			for( isample = 0 ; isample < param.num_sample; isample++ ){
 				//順方向の動作
 				//入力値を訓練データからx(入力層素子)につっこむ
-				for( int i = 0; i < param.num_input; i++) {
-					input_nodes[i].value = target[isample].input[i];
-				}
+				input_layer = target[isample].input;
 				//各層の素子の状態を更新
-				updateNodesStateForward();
+				updateStateForward();
 
 				//誤差の評価
 				error = checkError( target[isample] );
@@ -278,14 +145,14 @@ void BackPropagation::learnBatch()
 
 				//output log
 				for( int j = 0; j < param.num_output; j++ ){
-					sprintf( buf, "Data NO.%d, 誤差 = %G (目標:%f 出力:%f)\n", isample+1, pow( ( target[isample].output[j] -output_nodes[j].value ), 2 ), target[isample].output[j], output_nodes[j].value);
+					sprintf( buf, "Data NO.%d, 誤差 = %G (目標:%f 出力:%f)\n", isample+1, pow( ( target[isample].output[j] -output_layer[j] ), 2 ), target[isample].output[j], output_layer[j]);
 					ofs << buf;
 
 				}
 
 				//逆方向に動作させる
-				updateNodesStateBackword( isample );
-				calcPartial();
+				updateStateBackword( isample );
+				calcBondsWeightVariation();
 			}
 			optimizeBondsWeight();
 
@@ -297,7 +164,7 @@ void BackPropagation::learnBatch()
 			if( max_error < param.threshold_error ){
 				break;
 			} else {
-				//Not Reachec.
+				//Not Reached.
 			}
 		}
 		/**************/
@@ -306,33 +173,6 @@ void BackPropagation::learnBatch()
 
 		printf( "学習回数:%d, 誤差:%G (%lf sec)\n",ilearn - 1, max_error, (double)(end - begin)/CLOCKS_PER_SEC );
 		param.is_trained = true;
-	}
-}
-
-void BackPropagation::calcPartial()
-{
-	//between input layer and hidden layer
-	for( int i = 0; i < param.num_input + 1; i++ ){
-		input_nodes[i].calcPartial( param );
-	}
-
-	for( int l = 0; l < param.num_hidden_layer; l++ ){
-		for( int i = 0, size = (int)hidden_nodes[l].size(); i < size; i++ ){
-			hidden_nodes[l][i].calcPartial( param );
-		}
-	}
-}
-
-//結線重みの修正
-void BackPropagation::optimizeBondsWeight()
-{
-	for( int i = 0; i < param.num_input + 1; i++ ){
-		input_nodes[i].optimizeWeight( param );
-	}
-	for( int l = 0; l < param.num_hidden_layer; l++ ){
-		for( int i = 0, size = (int)hidden_nodes[l].size(); i < size; i++ ){
-			hidden_nodes[l][i].optimizeWeight( param );
-		}
 	}
 }
 
@@ -361,27 +201,32 @@ void BackPropagation::learnOnline()
 			for( isample = 0; isample < param.num_sample; isample++ ){
 
 				//入力値を訓練データから入力層ノードにつっこむ
+				/*
 				for( int i = 0; i < param.num_input; i++) {
 					input_nodes[i].value = target[isample].input[i];
 				}
+				*/
+				input_layer = target[isample].input;
 				//入力から出力の値を計算
+				/*
 				updateNodesStateForward();
-
+				*/
+				updateStateForward();
 				//誤差の評価
-				error = checkError( target[isample] );
+				error = checkError( target[isample] );//checkNodesError( target[isample] );
 				max_error = std::max( error, max_error );
 
 				//logの生成
 				for( int j = 0; j < param.num_output; j++ ){
 					//output log
-					sprintf( buf, "Data NO.%d, 誤差 = %G (目標:%f 出力:%f)\n", isample+1, error, target[isample].output[j], output_nodes[j].value);
+					sprintf( buf, "Data NO.%d, 誤差 = %G (目標:%f 出力:%f)\n", isample+1, error, target[isample].output[j], output_layer[j]);
 					ofs << buf;
 
 				}
 				//逆方向の動作
-				updateNodesStateBackword( isample );
+				updateStateBackword( isample );
 				//重みの修正
-				calcPartial();
+				calcBondsWeightVariation();
 				optimizeBondsWeight();
 			}
 			error_log << max_error << std::endl;
@@ -404,25 +249,248 @@ double BackPropagation::checkError( const TrainingData& target )
 {
 	double error = 0;
 	for( int j = 0; j < param.num_output; j++ ){
-		error += pow( (target.output[j] - output_nodes[j].value), 2 );
+		error += pow( (target.output[j] - output_layer[j]), 2 );
 	}
 	error /=  static_cast<double>( param.num_output );
 	return error;
 }
 
-//逆方向の動作
-void BackPropagation::updateNodesStateBackword( const int isample )
+
+//各素子を初期化
+void BackPropagation::initialize()
 {
-	TrainingData target = this->target[isample];
-	//出力層素子
-	for( int i = 0; i < param.num_output; i++ ){
-		output_nodes[i].back_value = (output_nodes[i].value - target.output[i]) * (1.0 - output_nodes[i].value) * output_nodes[i].value * param.sigmoid_gain;
+	input_layer.resize( param.num_input + 1 );
+	hidden_layer.resize( param.num_hidden_layer, std::vector< double >( param.num_hidden + 1 ) );
+	output_layer.resize( param.num_output );
+
+	hidden_layer_back.resize( param.num_hidden_layer, std::vector< double >( param.num_hidden + 1 ) );
+	output_layer_back.resize( param.num_output );
+
+	//initialize bonds_weight
+	if( bonds_weight != NULL && bonds_weight_variation != NULL ){
+		for( int i = 0; i < param_bk.num_input + 1; i++ ){
+			delete[] bonds_weight[0][i];
+			delete[] bonds_weight_variation[0][i];
+		}
+		for( int l = 1; l < param_bk.num_hidden_layer; l++ ){
+			for( int i = 0; i < param_bk.num_hidden + 1; i++ ){
+				delete[] bonds_weight[l][i];
+				delete[] bonds_weight_variation[l][i];
+			}
+		}
+		for( int i = 0; i < param_bk.num_hidden + 1; i++ ){
+			delete[] bonds_weight[param_bk.num_hidden_layer][i];
+			delete[] bonds_weight_variation[param_bk.num_hidden_layer][i];
+		}
+		for( int i = 0; i < param_bk.num_hidden_layer + 1; i++){
+			delete[] bonds_weight[i];
+			delete[] bonds_weight_variation[i];
+		}
+		delete[] bonds_weight;
+		delete[] bonds_weight_variation;
 	}
 
-	//hidden layer
-	for( int l = param.num_hidden_layer - 1; l >= 0; l-- ){
-		for( int i = 0, size = hidden_nodes[l].size(); i < size; i++ ){
-			hidden_nodes[l][i].updateStateBackword( param.sigmoid_gain );
+	bonds_weight = new double**[param.num_hidden_layer + 1];
+	bonds_weight_variation = new double**[param.num_hidden_layer + 1];
+
+	bonds_weight[0] = new double*[param.num_input + 1];
+	bonds_weight_variation[0] = new double*[param.num_input + 1];
+	for( int i = 0; i < param.num_input + 1; i++ ){
+		bonds_weight[0][i] = new double[param.num_hidden];
+		bonds_weight_variation[0][i] = new double[param.num_hidden];
+		for( int j = 0; j < param.num_hidden; j++ ){
+			bonds_weight[0][i][j] = (i == param.num_input) ? 1.0 : dRand();
+			bonds_weight_variation[0][i][j] = 0.0;
 		}
 	}
+	for( int l = 1; l < param.num_hidden_layer; l++ ){
+		bonds_weight[l] = new double*[param.num_hidden + 1];
+		bonds_weight_variation[l] = new double*[param.num_hidden + 1];
+		for( int i = 0; i < param.num_hidden + 1; i++ ){
+			bonds_weight[l][i] = new double[param.num_hidden];
+			bonds_weight_variation[l][i] = new double[param.num_hidden];
+			for( int j = 0; j < param.num_hidden; j++ ){
+				bonds_weight[l][i][j] = (i == param.num_hidden) ? 1.0 : dRand();
+				bonds_weight_variation[l][i][j] = 0.0;
+			}
+		}
+	}
+
+	bonds_weight[param.num_hidden_layer] = new double*[param.num_hidden + 1];
+	bonds_weight_variation[param.num_hidden_layer] = new double*[param.num_hidden + 1];
+	for( int i = 0; i < param.num_hidden + 1; i++ ){
+		bonds_weight[param.num_hidden_layer][i] = new double[param.num_output];
+		bonds_weight_variation[param.num_hidden_layer][i] = new double[param.num_output];
+		for( int j = 0; j < param.num_output; j++ ){
+			bonds_weight[param.num_hidden_layer][i][j] = (i == param.num_hidden) ? 1.0 : dRand();
+			bonds_weight_variation[param.num_hidden_layer][i][j] = 0.0;
+		}
+
+	}
+
+/*
+	//between input_layer and hidden_layer
+	bonds_weight[0].assign( param.num_input + 1, std::vector< double >( param.num_hidden, dRand() ) );
+	bonds_weight_variation[0].assign( param.num_input + 1, std::vector< double >( param.num_hidden, 0.0 ) );
+	for( int i = 0; i < param.num_hidden; i++ ) {
+		bonds_weight[0][param.num_input][i] = 1.0;
+	}
+	//between hidden_layer and hidden_layer
+	for( int layer = 1; layer < param.num_hidden_layer; layer++ ) {
+		bonds_weight[layer].assign( param.num_hidden + 1, std::vector< double >( param.num_hidden, dRand() ) );
+		bonds_weight_variation[layer].assign( param.num_hidden + 1, std::vector< double >( param.num_hidden, 0.0 ) );
+		for ( int i = 0; i < param.num_hidden; i++ ) {
+			bonds_weight[layer][param.num_hidden][i] = 1.0;
+		}
+	}
+	//between hidden_layer and output_layer
+	bonds_weight[param.num_hidden_layer].assign( param.num_hidden + 1, std::vector< double >( param.num_output, dRand() ) );
+	bonds_weight_variation[param.num_hidden_layer].assign( param.num_hidden + 1, std::vector< double >( param.num_output, 0.0 ) );
+	for( int i = 0; i < param.num_output; i++ ){
+		bonds_weight[param.num_hidden_layer][param.num_hidden][i] = 1.0;
+	}
+*/
+	//設定を記憶
+	param_bk = param;
+	printf( "hidden_layers = %d, hidden_nodes = %d, gain = %lf, learning_coefficient = %lf, threshold_error = %G\n", param.num_hidden_layer, param.num_hidden, param.sigmoid_gain, param.learning_coefficient, param.threshold_error );
+}
+
+void BackPropagation::updateStateForward()
+{
+	double total_input;
+	//input -> hidden
+	for( int i = 0; i < param.num_hidden ; i++ ){
+		total_input = 0.0;
+		for( int j = 0; j < param.num_input + 1; j++ ){
+			total_input += bonds_weight[0][j][i] * input_layer[j];
+		}
+		hidden_layer[0][i] = sigmoid( total_input, param.sigmoid_gain );
+	}
+
+	//hidden layer -> hidden layer ( when num_hidden_layer >= 2 )
+	for( int l = 1; l < param.num_hidden_layer; l++ ) {
+		for( int i = 0; i < param.num_hidden; i++ ) {
+			total_input = 0.0;
+			for( int j = 0; j < param.num_hidden + 1; j++ ){
+				total_input += bonds_weight[l][j][i] * hidden_layer[l - 1][j];
+			}
+			hidden_layer[l][i] = sigmoid( total_input, param.sigmoid_gain );
+		}
+	}
+
+	//hidden_layer -> output_layer
+	for( int i = 0; i < param.num_output; i++ ) {
+		total_input = 0.0;
+		for( int j = 0; j < param.num_hidden + 1; j++ ){
+			total_input += bonds_weight[param.num_hidden_layer][j][i] * hidden_layer[param.num_hidden_layer - 1][j];
+		}
+		output_layer[i] = sigmoid( total_input, param.sigmoid_gain );
+	}
+}
+
+void BackPropagation::updateStateBackword( const int i_sample )
+{
+	TrainingData target = this->target[i_sample];
+	double total_input;
+	int last_layer = param.num_hidden_layer - 1;
+
+	for( int i = 0; i < param.num_output; i++ ){
+		output_layer_back[i] = (output_layer[i] - target.output[i]) * (1.0 - output_layer[i]) * output_layer[i] * param.sigmoid_gain;
+	}
+
+	//hidden layer <-> output layer
+	for( int i = 0; i < param.num_hidden; i++ ){
+		total_input = 0.0;
+		for( int j = 0; j < param.num_output; j++ ){
+			total_input += bonds_weight[param.num_hidden_layer][i][j] * output_layer_back[j];
+		}
+		hidden_layer_back[last_layer][i] = total_input * (1.0 - hidden_layer[last_layer][i]) * hidden_layer[last_layer][i] * param.sigmoid_gain;
+	}
+
+	//hidden layer <-> hidden_layer
+	for( int layer = last_layer - 1; layer >  0; layer-- ){
+		for( int i = 0; i < param.num_hidden; i++ ){
+			total_input = 0;
+			for(int j = 0; j < param.num_hidden; j++){
+				total_input += bonds_weight[layer + 1][i][j] * hidden_layer_back[layer + 1][j];
+			}
+			hidden_layer_back[layer][i] = total_input * (1.0 - hidden_layer[layer][i]) * hidden_layer[layer][i] * param.sigmoid_gain;
+		}
+	}
+}
+
+void BackPropagation::calcBondsWeightVariation()
+{
+	//input <- hidden
+	for( int i = 0; i < param.num_input + 1; i++ ){
+		for( int j = 0; j < param.num_hidden; j++ ){
+			bonds_weight_variation[0][i][j] -= param.learning_coefficient * input_layer[i] * hidden_layer_back[0][j];
+		}
+	}
+
+	//hidden <- hidden
+	for( int l = 1; l < param.num_hidden_layer; l++ ){
+		for( int i = 0; i < param.num_hidden + 1; i++ ){
+			for( int j = 0; j < param.num_hidden; j++ ){
+				bonds_weight_variation[l][i][j] -= param.learning_coefficient * hidden_layer[l-1][i] * hidden_layer_back[l][j];
+			}
+		}
+	}
+
+	//hidden <- output
+	for( int i = 0; i < param.num_hidden + 1; i++ ){
+		for( int j = 0; j < param.num_output; j++ ){
+			bonds_weight_variation[param.num_hidden_layer][i][j] -= param.learning_coefficient * hidden_layer[param.num_hidden_layer - 1][i] * output_layer_back[j];
+		}
+	}
+}
+
+void BackPropagation::resetBondsWeightVariation()
+{
+	for( int i = 0; i < param.num_input + 1; i++ ){
+		std::fill_n( bonds_weight_variation[0][i], param.num_hidden, 0.0 );
+	}
+	for( int l = 1; l < param.num_hidden_layer; l++ ){
+		for( int i = 0; i < param.num_hidden + 1; i++ ){
+			std::fill_n( bonds_weight_variation[l][i], param.num_hidden, 0.0 );
+		}
+	}
+	for( int i = 0; i < param.num_hidden + 1; i++ ){
+		std::fill_n( bonds_weight_variation[param.num_hidden_layer][i], param.num_output, 0.0 );
+	}
+}
+
+void BackPropagation::optimizeBondsWeight()
+{
+	for( int i = 0; i < param.num_input + 1; i++ ){
+		for( int j = 0; j < param.num_hidden; j++ ){
+			bonds_weight[0][i][j] += bonds_weight_variation[0][i][j];
+		}
+	}
+	for( int l = 1; l < param.num_hidden_layer; l++ ){
+		for( int i = 0; i < param.num_hidden + 1; i++ ){
+			for( int j = 0; j < param.num_hidden; j++ ){
+				bonds_weight[l][i][j] += bonds_weight_variation[l][i][j];
+			}
+		}
+	}
+	for( int i = 0; i < param.num_hidden + 1; i++ ){
+		for( int j = 0; j < param.num_output; j++ ){
+			bonds_weight[param.num_hidden_layer][i][j] += bonds_weight_variation[param.num_hidden_layer][i][j];
+		}
+	}
+	resetBondsWeightVariation();
+}
+
+
+//-1から1の範囲の乱数を返す。
+double BackPropagation::dRand()
+{
+	double ret = static_cast<double>( rand() ) / static_cast<double>( RAND_MAX );
+	return ( rand()%2 == 0 ) ? ret : -ret;
+}
+
+double BackPropagation::sigmoid( const double inputs, const double gain )
+{
+	return 1 / ( 1.0 + exp( gain * (-inputs) ) );
 }

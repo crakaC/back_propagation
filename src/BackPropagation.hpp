@@ -2,7 +2,6 @@
 #define BackPropagation_H_20130504
 
 #include<vector>
-#include<unordered_map>
 #include<string>
 //訓練データ
 struct TrainingData{
@@ -22,24 +21,6 @@ struct Params{
 	double threshold_error;//許容誤差
 	bool is_trained, is_empty;//学習済みか、訓練データは存在するか。
 	Params();
-};
-
-class Node{
-public:
-	std::unordered_map< Node*, double > weight_from;
-	std::unordered_map< Node*, double > weight_to;
-	std::unordered_map< Node*, double > weight_partial_to;
-	double value;
-	double back_value;
-	Node();
-	void updateStateForward( const double gain );
-	void updateStateBackword( const double gain );
-	void calcPartial( const Params& param );
-	void optimizeWeight( const Params& param );
-	void resetPartial( void );
-private:
-	double dRand();//-1~1の乱数
-	double sigmoid( const double inputs, const double gain );
 };
 
 class BackPropagation{
@@ -74,17 +55,27 @@ public:
 	bool isTrained();
 private:
 	void initialize();
-	void updateNodesStateForward();
-	void updateNodesStateBackword( const int iSample );
-	void calcPartial();
+
+	void updateStateForward();
+	void updateStateBackword( const int i_sample );
+	void calcBondsWeightVariation();
+	void resetBondsWeightVariation();
 	void optimizeBondsWeight();
 	double checkError( const TrainingData& target );
-	double dRand();
 
-	std::vector< Node > input_nodes;
-	std::vector< Node > output_nodes;
-	std::vector< std::vector< Node > > hidden_nodes; 
-	Node dummy_node; //閾値用
+	double dRand();
+	double sigmoid( const double inputs, const double gain );
+
+	std::vector< double > input_layer;
+	std::vector< std::vector < double > > hidden_layer;
+	std::vector< double > output_layer;
+
+	std::vector< double > output_layer_back;
+	std::vector< std::vector < double > > hidden_layer_back;
+
+	double*** bonds_weight;
+	double*** bonds_weight_variation;
+
 	Params param;//各種パラメータ
 	Params param_bk; //学習時の状態を保存する
 
