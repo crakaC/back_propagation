@@ -29,8 +29,49 @@ Params::Params()
 
 BackPropagation::BackPropagation()
 {
+	/*
 	bonds_weight = NULL;
 	bonds_weight_variation = NULL;
+	*/
+	const int MAX_INPUT = 256;
+	const int MAX_HIDDEN = 256;
+	const int MAX_OUTPUT = 256;
+	const int MAX_HIDDEN_LAYER = 256;
+	input_layer.reserve( MAX_INPUT );
+	hidden_layer.assign( MAX_HIDDEN_LAYER, std::vector< double >( MAX_HIDDEN + 1 ) );
+	output_layer.reserve( MAX_OUTPUT );
+	hidden_layer_back.assign( MAX_HIDDEN_LAYER, std::vector< double >( MAX_HIDDEN + 1 ) );
+	output_layer_back.reserve( MAX_OUTPUT );
+	bonds_weight.reserve( sizeof(double) * (MAX_HIDDEN_LAYER + 1) * (MAX_HIDDEN + 1) * MAX_HIDDEN );
+	bonds_weight_variation.reserve( sizeof(double) * (MAX_HIDDEN_LAYER + 1) * (MAX_HIDDEN + 1) * MAX_HIDDEN );
+	/*
+	//between input_layer and hidden_layer
+	bonds_weight[0].assign( MAX_INPUT + 1, std::vector< double >( MAX_HIDDEN ) );
+	bonds_weight_variation[0].assign( MAX_INPUT + 1, std::vector< double >( MAX_HIDDEN, 0.0 ) );
+	for( int i = 0; i < MAX_INPUT + 1; i++ ) {
+		for( int j = 0; j < MAX_HIDDEN; j++ ) {
+			bonds_weight[0][i][j] = (i == MAX_INPUT) ? 1.0 : dRand();
+		}
+	}
+	//between hidden_layer and hidden_layer
+	for( int layer = 1; layer < MAX_HIDDEN_LAYER; layer++ ) {
+		bonds_weight[layer].assign( MAX_HIDDEN + 1, std::vector< double >( MAX_HIDDEN, 0.0 ) );
+		bonds_weight_variation[layer].assign( MAX_HIDDEN + 1, std::vector< double >( MAX_HIDDEN, 0.0 ) );
+		for( int i = 0; i < MAX_HIDDEN + 1; i++ ) {
+			for( int j = 0; j < MAX_HIDDEN; j++ ) {
+				bonds_weight[layer][i][j] = (i == MAX_HIDDEN) ? 1.0 : dRand();
+			}
+		}
+	}
+	//between hidden_layer and output_layer
+	bonds_weight[MAX_HIDDEN_LAYER].assign( MAX_HIDDEN + 1, std::vector< double >( MAX_OUTPUT ) );
+	bonds_weight_variation[MAX_HIDDEN_LAYER].assign( MAX_HIDDEN + 1, std::vector< double >( MAX_OUTPUT, 0.0 ) );
+	for( int i = 0; i < MAX_HIDDEN + 1; i++ ){
+		for( int j = 0; j < MAX_OUTPUT; j++ ){
+			bonds_weight[MAX_HIDDEN_LAYER][i][j] = (i == MAX_HIDDEN) ? 1.0 : dRand();			
+		}
+	}
+	*/
 }
 
 void BackPropagation::setTrainingData( const std::string filename = "training2.dat" )
@@ -201,16 +242,8 @@ void BackPropagation::learnOnline()
 			for( isample = 0; isample < param.num_sample; isample++ ){
 
 				//入力値を訓練データから入力層ノードにつっこむ
-				/*
-				for( int i = 0; i < param.num_input; i++) {
-					input_nodes[i].value = target[isample].input[i];
-				}
-				*/
 				input_layer = target[isample].input;
 				//入力から出力の値を計算
-				/*
-				updateNodesStateForward();
-				*/
 				updateStateForward();
 				//誤差の評価
 				error = checkError( target[isample] );//checkNodesError( target[isample] );
@@ -218,10 +251,8 @@ void BackPropagation::learnOnline()
 
 				//logの生成
 				for( int j = 0; j < param.num_output; j++ ){
-					//output log
 					sprintf( buf, "Data NO.%d, 誤差 = %G (目標:%f 出力:%f)\n", isample+1, error, target[isample].output[j], output_layer[j]);
 					ofs << buf;
-
 				}
 				//逆方向の動作
 				updateStateBackword( isample );
@@ -267,6 +298,7 @@ void BackPropagation::initialize()
 	output_layer_back.resize( param.num_output );
 
 	//initialize bonds_weight
+	/*
 	if( bonds_weight != NULL && bonds_weight_variation != NULL ){
 		for( int i = 0; i < param_bk.num_input + 1; i++ ){
 			delete[] bonds_weight[0][i];
@@ -327,29 +359,37 @@ void BackPropagation::initialize()
 		}
 
 	}
+	*/
 
-/*
+	bonds_weight.resize( param.num_hidden_layer + 1 );
+	bonds_weight_variation.resize( param.num_hidden_layer + 1 );
 	//between input_layer and hidden_layer
-	bonds_weight[0].assign( param.num_input + 1, std::vector< double >( param.num_hidden, dRand() ) );
+	bonds_weight[0].assign( param.num_input + 1, std::vector< double >( param.num_hidden ) );
 	bonds_weight_variation[0].assign( param.num_input + 1, std::vector< double >( param.num_hidden, 0.0 ) );
-	for( int i = 0; i < param.num_hidden; i++ ) {
-		bonds_weight[0][param.num_input][i] = 1.0;
+	for( int i = 0; i < param.num_input + 1; i++ ) {
+		for( int j = 0; j < param.num_hidden; j++ ) {
+			bonds_weight[0][i][j] = (i == param.num_input) ? 1.0 : dRand();
+		}
 	}
 	//between hidden_layer and hidden_layer
 	for( int layer = 1; layer < param.num_hidden_layer; layer++ ) {
-		bonds_weight[layer].assign( param.num_hidden + 1, std::vector< double >( param.num_hidden, dRand() ) );
+		bonds_weight[layer].assign( param.num_hidden + 1, std::vector< double >( param.num_hidden, 0.0 ) );
 		bonds_weight_variation[layer].assign( param.num_hidden + 1, std::vector< double >( param.num_hidden, 0.0 ) );
-		for ( int i = 0; i < param.num_hidden; i++ ) {
-			bonds_weight[layer][param.num_hidden][i] = 1.0;
+		for( int i = 0; i < param.num_hidden + 1; i++ ) {
+			for( int j = 0; j < param.num_hidden; j++ ) {
+				bonds_weight[layer][i][j] = (i == param.num_hidden) ? 1.0 : dRand();
+			}
 		}
 	}
 	//between hidden_layer and output_layer
-	bonds_weight[param.num_hidden_layer].assign( param.num_hidden + 1, std::vector< double >( param.num_output, dRand() ) );
+	bonds_weight[param.num_hidden_layer].assign( param.num_hidden + 1, std::vector< double >( param.num_output ) );
 	bonds_weight_variation[param.num_hidden_layer].assign( param.num_hidden + 1, std::vector< double >( param.num_output, 0.0 ) );
-	for( int i = 0; i < param.num_output; i++ ){
-		bonds_weight[param.num_hidden_layer][param.num_hidden][i] = 1.0;
+	for( int i = 0; i < param.num_hidden + 1; i++ ){
+		for( int j = 0; j < param.num_output; j++ ){
+			bonds_weight[param.num_hidden_layer][i][j] = (i == param.num_hidden) ? 1.0 : dRand();			
+		}
 	}
-*/
+
 	//設定を記憶
 	param_bk = param;
 	printf( "hidden_layers = %d, hidden_nodes = %d, gain = %lf, learning_coefficient = %lf, threshold_error = %G\n", param.num_hidden_layer, param.num_hidden, param.sigmoid_gain, param.learning_coefficient, param.threshold_error );
@@ -359,32 +399,32 @@ void BackPropagation::updateStateForward()
 {
 	double total_input;
 	//input -> hidden
-	for( int i = 0; i < param.num_hidden ; i++ ){
+	for( int i = 0; i < param_bk.num_hidden ; i++ ){
 		total_input = 0.0;
-		for( int j = 0; j < param.num_input + 1; j++ ){
+		for( int j = 0; j < param_bk.num_input + 1; j++ ){
 			total_input += bonds_weight[0][j][i] * input_layer[j];
 		}
 		hidden_layer[0][i] = sigmoid( total_input, param.sigmoid_gain );
 	}
 
 	//hidden layer -> hidden layer ( when num_hidden_layer >= 2 )
-	for( int l = 1; l < param.num_hidden_layer; l++ ) {
-		for( int i = 0; i < param.num_hidden; i++ ) {
+	for( int l = 1; l < param_bk.num_hidden_layer; l++ ) {
+		for( int i = 0; i < param_bk.num_hidden; i++ ) {
 			total_input = 0.0;
-			for( int j = 0; j < param.num_hidden + 1; j++ ){
+			for( int j = 0; j < param_bk.num_hidden + 1; j++ ){
 				total_input += bonds_weight[l][j][i] * hidden_layer[l - 1][j];
 			}
-			hidden_layer[l][i] = sigmoid( total_input, param.sigmoid_gain );
+			hidden_layer[l][i] = sigmoid( total_input, param_bk.sigmoid_gain );
 		}
 	}
 
 	//hidden_layer -> output_layer
-	for( int i = 0; i < param.num_output; i++ ) {
+	for( int i = 0; i < param_bk.num_output; i++ ) {
 		total_input = 0.0;
-		for( int j = 0; j < param.num_hidden + 1; j++ ){
-			total_input += bonds_weight[param.num_hidden_layer][j][i] * hidden_layer[param.num_hidden_layer - 1][j];
+		for( int j = 0; j < param_bk.num_hidden + 1; j++ ){
+			total_input += bonds_weight[param_bk.num_hidden_layer][j][i] * hidden_layer[param_bk.num_hidden_layer - 1][j];
 		}
-		output_layer[i] = sigmoid( total_input, param.sigmoid_gain );
+		output_layer[i] = sigmoid( total_input, param_bk.sigmoid_gain );
 	}
 }
 
@@ -447,6 +487,7 @@ void BackPropagation::calcBondsWeightVariation()
 
 void BackPropagation::resetBondsWeightVariation()
 {
+	/*
 	for( int i = 0; i < param.num_input + 1; i++ ){
 		std::fill_n( bonds_weight_variation[0][i], param.num_hidden, 0.0 );
 	}
@@ -458,6 +499,13 @@ void BackPropagation::resetBondsWeightVariation()
 	for( int i = 0; i < param.num_hidden + 1; i++ ){
 		std::fill_n( bonds_weight_variation[param.num_hidden_layer][i], param.num_output, 0.0 );
 	}
+	*/
+	for( auto ite = bonds_weight_variation.begin(); ite != bonds_weight_variation.end(); ite++){
+		for( auto jte = (*ite).begin(); jte != (*ite).end(); jte++ ){
+			std::fill( (*jte).begin(), (*jte).end(), 0.0);
+		}
+	}
+
 }
 
 void BackPropagation::optimizeBondsWeight()

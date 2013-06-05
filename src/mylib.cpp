@@ -194,14 +194,14 @@ void setAllParams( BackPropagation* bp )
 void setHiddenNodesNum( BackPropagation* bp )
 {
 	printf( "中間層素子数(現在%d) ", bp->getHiddenNodesNum() );
-	bp->setHiddenNodesNum( inputByKb<int>( 1, 100 ) );
+	bp->setHiddenNodesNum( inputByKb<int>( 1, 256 ) );
 }
 
 //中間層数設定
 void setHiddenLayerNum( BackPropagation* bp )
 {
 	printf( "中間層数(現在%d) ", bp->getHiddenLayerNum() );
-	bp->setHiddenLayerNum( inputByKb<int>( 1, 100 ) );
+	bp->setHiddenLayerNum( inputByKb<int>( 1, 256 ) );
 }
 
 
@@ -223,5 +223,5 @@ void setLearningCoefficient( BackPropagation* bp )
 void setThresholdError( BackPropagation* bp )
 {
 	printf( "許容誤差(現在%G) ", bp->getThresholdError() );
-	bp->setThresholdError( inputByKb<double>( 1e-60, 1 ) );
+	bp->setThresholdError( inputByKb<double>( 1e-10, 0.5 ) );
 }

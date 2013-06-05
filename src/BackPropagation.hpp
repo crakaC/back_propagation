@@ -73,8 +73,9 @@ private:
 	std::vector< double > output_layer_back;
 	std::vector< std::vector < double > > hidden_layer_back;
 
-	double*** bonds_weight;
-	double*** bonds_weight_variation;
+	typedef std::vector< std::vector< std::vector< double > > > Vector3d;
+	Vector3d bonds_weight;
+	Vector3d bonds_weight_variation;
 
 	Params param;//各種パラメータ
 	Params param_bk; //学習時の状態を保存する
