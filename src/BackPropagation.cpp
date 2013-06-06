@@ -29,49 +29,18 @@ Params::Params()
 
 BackPropagation::BackPropagation()
 {
-	/*
-	bonds_weight = NULL;
-	bonds_weight_variation = NULL;
-	*/
-	const int MAX_INPUT = 256;
+	//const int MAX_INPUT = 256;
+	//const int MAX_OUTPUT = 256;
 	const int MAX_HIDDEN = 256;
-	const int MAX_OUTPUT = 256;
 	const int MAX_HIDDEN_LAYER = 256;
-	input_layer.reserve( MAX_INPUT );
+
+	//input_layer.reserve( MAX_INPUT );
 	hidden_layer.assign( MAX_HIDDEN_LAYER, std::vector< double >( MAX_HIDDEN + 1 ) );
-	output_layer.reserve( MAX_OUTPUT );
+	//output_layer.reserve( MAX_OUTPUT );
 	hidden_layer_back.assign( MAX_HIDDEN_LAYER, std::vector< double >( MAX_HIDDEN + 1 ) );
-	output_layer_back.reserve( MAX_OUTPUT );
-	bonds_weight.reserve( sizeof(double) * (MAX_HIDDEN_LAYER + 1) * (MAX_HIDDEN + 1) * MAX_HIDDEN );
-	bonds_weight_variation.reserve( sizeof(double) * (MAX_HIDDEN_LAYER + 1) * (MAX_HIDDEN + 1) * MAX_HIDDEN );
-	/*
-	//between input_layer and hidden_layer
-	bonds_weight[0].assign( MAX_INPUT + 1, std::vector< double >( MAX_HIDDEN ) );
-	bonds_weight_variation[0].assign( MAX_INPUT + 1, std::vector< double >( MAX_HIDDEN, 0.0 ) );
-	for( int i = 0; i < MAX_INPUT + 1; i++ ) {
-		for( int j = 0; j < MAX_HIDDEN; j++ ) {
-			bonds_weight[0][i][j] = (i == MAX_INPUT) ? 1.0 : dRand();
-		}
-	}
-	//between hidden_layer and hidden_layer
-	for( int layer = 1; layer < MAX_HIDDEN_LAYER; layer++ ) {
-		bonds_weight[layer].assign( MAX_HIDDEN + 1, std::vector< double >( MAX_HIDDEN, 0.0 ) );
-		bonds_weight_variation[layer].assign( MAX_HIDDEN + 1, std::vector< double >( MAX_HIDDEN, 0.0 ) );
-		for( int i = 0; i < MAX_HIDDEN + 1; i++ ) {
-			for( int j = 0; j < MAX_HIDDEN; j++ ) {
-				bonds_weight[layer][i][j] = (i == MAX_HIDDEN) ? 1.0 : dRand();
-			}
-		}
-	}
-	//between hidden_layer and output_layer
-	bonds_weight[MAX_HIDDEN_LAYER].assign( MAX_HIDDEN + 1, std::vector< double >( MAX_OUTPUT ) );
-	bonds_weight_variation[MAX_HIDDEN_LAYER].assign( MAX_HIDDEN + 1, std::vector< double >( MAX_OUTPUT, 0.0 ) );
-	for( int i = 0; i < MAX_HIDDEN + 1; i++ ){
-		for( int j = 0; j < MAX_OUTPUT; j++ ){
-			bonds_weight[MAX_HIDDEN_LAYER][i][j] = (i == MAX_HIDDEN) ? 1.0 : dRand();			
-		}
-	}
-	*/
+	//output_layer_back.reserve( MAX_OUTPUT );
+	//bonds_weight.reserve( sizeof(double) * (MAX_HIDDEN_LAYER + 1) * (MAX_HIDDEN + 1) * MAX_HIDDEN );
+	//bonds_weight_variation.reserve( sizeof(double) * (MAX_HIDDEN_LAYER + 1) * (MAX_HIDDEN + 1) * MAX_HIDDEN );
 }
 
 void BackPropagation::setTrainingData( const std::string filename = "training2.dat" )
@@ -296,70 +265,6 @@ void BackPropagation::initialize()
 
 	hidden_layer_back.resize( param.num_hidden_layer, std::vector< double >( param.num_hidden + 1 ) );
 	output_layer_back.resize( param.num_output );
-
-	//initialize bonds_weight
-	/*
-	if( bonds_weight != NULL && bonds_weight_variation != NULL ){
-		for( int i = 0; i < param_bk.num_input + 1; i++ ){
-			delete[] bonds_weight[0][i];
-			delete[] bonds_weight_variation[0][i];
-		}
-		for( int l = 1; l < param_bk.num_hidden_layer; l++ ){
-			for( int i = 0; i < param_bk.num_hidden + 1; i++ ){
-				delete[] bonds_weight[l][i];
-				delete[] bonds_weight_variation[l][i];
-			}
-		}
-		for( int i = 0; i < param_bk.num_hidden + 1; i++ ){
-			delete[] bonds_weight[param_bk.num_hidden_layer][i];
-			delete[] bonds_weight_variation[param_bk.num_hidden_layer][i];
-		}
-		for( int i = 0; i < param_bk.num_hidden_layer + 1; i++){
-			delete[] bonds_weight[i];
-			delete[] bonds_weight_variation[i];
-		}
-		delete[] bonds_weight;
-		delete[] bonds_weight_variation;
-	}
-
-	bonds_weight = new double**[param.num_hidden_layer + 1];
-	bonds_weight_variation = new double**[param.num_hidden_layer + 1];
-
-	bonds_weight[0] = new double*[param.num_input + 1];
-	bonds_weight_variation[0] = new double*[param.num_input + 1];
-	for( int i = 0; i < param.num_input + 1; i++ ){
-		bonds_weight[0][i] = new double[param.num_hidden];
-		bonds_weight_variation[0][i] = new double[param.num_hidden];
-		for( int j = 0; j < param.num_hidden; j++ ){
-			bonds_weight[0][i][j] = (i == param.num_input) ? 1.0 : dRand();
-			bonds_weight_variation[0][i][j] = 0.0;
-		}
-	}
-	for( int l = 1; l < param.num_hidden_layer; l++ ){
-		bonds_weight[l] = new double*[param.num_hidden + 1];
-		bonds_weight_variation[l] = new double*[param.num_hidden + 1];
-		for( int i = 0; i < param.num_hidden + 1; i++ ){
-			bonds_weight[l][i] = new double[param.num_hidden];
-			bonds_weight_variation[l][i] = new double[param.num_hidden];
-			for( int j = 0; j < param.num_hidden; j++ ){
-				bonds_weight[l][i][j] = (i == param.num_hidden) ? 1.0 : dRand();
-				bonds_weight_variation[l][i][j] = 0.0;
-			}
-		}
-	}
-
-	bonds_weight[param.num_hidden_layer] = new double*[param.num_hidden + 1];
-	bonds_weight_variation[param.num_hidden_layer] = new double*[param.num_hidden + 1];
-	for( int i = 0; i < param.num_hidden + 1; i++ ){
-		bonds_weight[param.num_hidden_layer][i] = new double[param.num_output];
-		bonds_weight_variation[param.num_hidden_layer][i] = new double[param.num_output];
-		for( int j = 0; j < param.num_output; j++ ){
-			bonds_weight[param.num_hidden_layer][i][j] = (i == param.num_hidden) ? 1.0 : dRand();
-			bonds_weight_variation[param.num_hidden_layer][i][j] = 0.0;
-		}
-
-	}
-	*/
 
 	bonds_weight.resize( param.num_hidden_layer + 1 );
 	bonds_weight_variation.resize( param.num_hidden_layer + 1 );
