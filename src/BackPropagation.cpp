@@ -1,3 +1,20 @@
+﻿/*****************************************************************************/
+/*! @file	BackPropagation.cpp
+	@brief	BackPropagationの実装部分
+
+	BackPropagationに関わる部分の実装
+
+	@sa	BackPropagation.hpp	ヘッダ
+	@sa	BackPropagation_setter_and_getter.cpp setter および getter の実装部分
+	@par	更新履歴
+		- 2012/05/04 Ver. 1.0
+			- 基本的な機能の実装 (by Kosuke Shirakashi)
+		- 2012/06/09 Ver. 1.1
+			- 中間層数および中間層素子数を調整可能に (by Kosuke Shirakashi)
+	@par Copyright
+		&copy; 2013　SHIMA Lab. 
+******************************************************************************/
+
 #include<cstdlib>
 #include<cstdio>
 #include<cmath>

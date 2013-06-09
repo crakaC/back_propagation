@@ -1,4 +1,4 @@
-#ifndef MYLIB_H_20130504
+﻿#ifndef MYLIB_H_20130504
 #define MYLIB_H_20130504
 
 #include<iostream>

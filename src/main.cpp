@@ -1,4 +1,37 @@
-//Back Propagation
+﻿/*****************************************************************************/
+/*! @mainpage
+	ニューラルネットを構築し，バックプロパゲーションによる学習，
+	汎化の確認等を行うことができる
+	
+	@par	更新履歴
+		- 2012/05/04 Ver. 1.0
+			- 基本的な機能の実装 (by Kosuke Shirakashi)
+		- 2012/06/09 Ver. 1.1
+			- 中間層数および中間層素子数を調整可能に (by Kosuke Shirakashi)
+	
+	@attention 
+		環境によっては起動できない可能性がある．<BR>
+		@ref BackPropagation::BackPropagation() 内の値を小さくするとよいかも．
+	@par Copyright
+		&copy; 2013 SHIMA Lab.
+******************************************************************************/
+
+/*****************************************************************************/
+/*! @file	main.cpp
+	@brief	main()
+
+	コンソール上で対話的にバックプロパゲーションの動作を行う．
+
+	@see	BackPropagation.cpp	実装部分
+	@see	BackPropagation_setter_and_getter.cpp 実装部分（setter および getter）
+	@par	更新履歴
+		- 2012/05/04 Ver. 1.0
+			- 基本的な機能の実装 (by Kosuke Shirakashi)
+		- 2012/06/09 Ver. 1.1
+			- 中間層数および中間層素子数を調整可能に (by Kosuke Shirakashi)
+	@par Copyright
+		&copy; 2013 SHIMA Lab.
+******************************************************************************/
 
 #include<iostream>
 #include<cstdio>
