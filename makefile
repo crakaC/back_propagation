@@ -1,6 +1,6 @@
 CC=g++
-CFLAGS=-Wall -O2 -std=gnu++11
-DEBUG_FLAGS=-Wall -O0 -g
+CFLAGS=-Wall -O2 -std=c++11 -march=native
+DEBUG_FLAGS=-Wall -O0 -g -std=c++11
 .SUFFIXES = .cpp
 SRC_DIR = src
 OBJ_DIR = obj
