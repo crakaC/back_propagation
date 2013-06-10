@@ -6,16 +6,21 @@
 #include"mylib.hpp"
 #include"BackPropagation.hpp"
 
-int main()
+int main( int argc, char* argv[])
 {
 	using namespace std;
 
 	//表示テキスト
 	const vector< string > msg = genMsg(), conf_msg = genMsg2();
 	BackPropagation bp = BackPropagation();
-	bp.setTrainingData("xor.dat");
 	int key = -1; //キー入力
 	string filename;
+
+	if( argc >= 2 && argv[1][0] == 'd'){
+		bp.setTrainingData("xor.dat");
+		bp.learnOnline();
+		bp.learnBatch();
+	}
 	while( key != 0 ){
 		showMsg( msg );
 		key = inputByKb< int >( 0, (int)msg.size() - 1 );
